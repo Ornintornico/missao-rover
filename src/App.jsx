@@ -15,7 +15,7 @@ const EXPERIMENTS = [
     code: "EXP-01",
     title: "Análise de Estrutura",
     description:
-      "P.A.D enviou amostras de rochas de uma rocha lisa.",
+      "P.A.D enviou amostras de uma rocha lisa.",
     science:
       "Os sensores detectaram um matérial sólido de origem vulcânica, talvez seja da superfície do Planeta. O material deve ser analisado cuidadosamente com o auxílio do super foco tecnológico.",
   },
