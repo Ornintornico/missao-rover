@@ -171,7 +171,9 @@ const DustLayer = memo(function DustLayer() {
 });
 
 const CinematicIntroScreen = memo(function CinematicIntroScreen({ onStart }) {
+  const INTRO_DURATION_MS = 72000;
   const [showButton, setShowButton] = useState(false);
+  const [introStarted, setIntroStarted] = useState(false);
   const [musicStarted, setMusicStarted] = useState(false);
   const musicRef = useRef(null);
 
@@ -191,18 +193,24 @@ const CinematicIntroScreen = memo(function CinematicIntroScreen({ onStart }) {
     onStart();
   };
 
+  const handleIntroStart = () => {
+    setIntroStarted(true);
+    startMusic();
+  };
+
   useEffect(() => {
+    if (!introStarted) return undefined;
+
     const timer = setTimeout(() => {
       setShowButton(true);
-    }, 60000);
+    }, INTRO_DURATION_MS);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [introStarted]);
 
   return (
     <div
-    onClick={startMusic}
-      className="min-h-screen overflow-hidden relative bg-black text-yellow-200 flex items-center justify-center cursor-pointer"
+      className="min-h-screen overflow-hidden relative bg-black text-yellow-200 flex items-center justify-center"
       style={createBackgroundStyle(0.92)}
     >
       <DustLayer />
@@ -258,13 +266,17 @@ const CinematicIntroScreen = memo(function CinematicIntroScreen({ onStart }) {
 }
           @keyframes crawl {
   0% {
-    transform: translateX(-50%) rotateX(28deg) translateY(55vh);
+    transform: translateX(-50%) rotateX(26deg) translateY(62vh);
+    opacity: 1;
+  }
+
+  92% {
     opacity: 1;
   }
 
   100% {
-    transform: translateX(-50%) rotateX(28deg) translateY(-260vh);
-    opacity: 0;
+    transform: translateX(-50%) rotateX(26deg) translateY(-300vh);
+    opacity: 1;
   }
 }
 
@@ -280,20 +292,32 @@ const CinematicIntroScreen = memo(function CinematicIntroScreen({ onStart }) {
   position: absolute;
   top: 0;
   left: 50%;
-  width: 88%;
-  max-width: 4000px;
+  width: min(88vw, 1320px);
   transform-origin: 50% 100%;
-  animation: crawl 60s linear forwards;
+  animation: crawl 72s linear forwards;
   color: #facc15;
   font-family: "Orbitron", sans-serif;
   font-weight: 800;
   text-align: justify;
-  line-height: 2.3;
-  font-size: clamp(1.5rem, 3vw, 3.2rem);
-  letter-spacing: 0.04em;
+  line-height: 2.15;
+  font-size: clamp(1.35rem, 2.6vw, 3rem);
+  letter-spacing: 0;
   text-shadow:
     0 0 8px rgba(250, 204, 21, 0.45),
     0 0 22px rgba(250, 204, 21, 0.25);
+}
+
+@media (max-width: 640px) {
+  .starwars-container {
+    perspective: 380px;
+  }
+
+  .starwars-crawl {
+    width: 92vw;
+    line-height: 1.9;
+    font-size: clamp(1.05rem, 5.2vw, 1.65rem);
+    animation-duration: 82s;
+  }
 }
 
           .crawl-title {
@@ -310,13 +334,13 @@ const CinematicIntroScreen = memo(function CinematicIntroScreen({ onStart }) {
 
           .crawl-title p {
             font-size: clamp(1rem, 2vw, 1.8rem);
-            letter-spacing: 0.4em;
+            letter-spacing: 0;
             margin-bottom: 1rem;
           }
 
           @keyframes fadeButton {
             from {
-              opacity: 1;
+              opacity: 0;
               transform: translateY(20px);
             }
 
@@ -332,6 +356,37 @@ const CinematicIntroScreen = memo(function CinematicIntroScreen({ onStart }) {
         `}
       </style>
 <audio ref={musicRef} src={introMusic} />
+
+      {!introStarted && (
+        <div className="relative z-20 w-full max-w-3xl mx-auto px-6 text-center">
+          <p className="uppercase tracking-[0.45em] text-yellow-300 text-xs sm:text-sm mb-5" style={FONT.mono}>
+            Transmissão orbital em espera
+          </p>
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-yellow-200 mb-6 drop-shadow-[0_0_22px_rgba(250,204,21,0.35)]">
+            Missão P.A.D.
+          </h1>
+          <p className="text-yellow-100/85 text-lg sm:text-xl leading-relaxed mb-9 max-w-2xl mx-auto" style={FONT.narrative}>
+            Inicie a sequência cinematográfica da missão ou avance direto para a transmissão técnica.
+          </p>
+          <div className="flex justify-center">
+            <button
+              onClick={handleIntroStart}
+              className="bg-yellow-400 hover:bg-yellow-300 text-black px-8 py-4 rounded-2xl text-lg font-black shadow-[0_0_40px_rgba(250,204,21,0.42)] transition border border-yellow-100"
+            >
+              COMEÇAR INTRODUÇÃO
+            </button>
+          </div>
+        </div>
+      )}
+
+      <button
+        onClick={handleStart}
+        className="absolute top-5 right-5 z-30 bg-black/65 hover:bg-black/85 text-yellow-100 px-4 py-3 rounded-xl text-sm font-bold transition border border-yellow-300/40 shadow-[0_0_22px_rgba(250,204,21,0.14)]"
+      >
+        PULAR INTRODUÇÃO
+      </button>
+
+      {introStarted && (
       <div className="starwars-container z-10">
         <div className="starwars-crawl">
           <div className="crawl-title">
@@ -378,12 +433,13 @@ const CinematicIntroScreen = memo(function CinematicIntroScreen({ onStart }) {
           </p>
         </div>
       </div>
+      )}
 
-      {showButton && (
-        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30 intro-button">
+      {introStarted && showButton && (
+        <div className="absolute bottom-8 sm:bottom-16 left-1/2 -translate-x-1/2 z-30 intro-button px-4 w-full flex justify-center">
           <button
             onClick={handleStart}
-            className="bg-yellow-400 hover:bg-yellow-300 text-black px-10 py-5 rounded-2xl text-xl font-black shadow-[0_0_40px_rgba(250,204,21,0.45)] transition border border-yellow-100"
+            className="bg-yellow-400 hover:bg-yellow-300 text-black px-8 sm:px-10 py-4 sm:py-5 rounded-2xl text-lg sm:text-xl font-black shadow-[0_0_40px_rgba(250,204,21,0.45)] transition border border-yellow-100"
           >
             INICIAR TRANSMISSÃO
           </button>
@@ -591,17 +647,37 @@ const ExperimentSection = memo(function ExperimentSection({ revealed, missionSta
   );
 });
 
-const PlanetCard = memo(function PlanetCard({ planet, index }) {
+const PlanetCard = memo(function PlanetCard({ planet, index, canChoose, selectedPlanet, onChoose }) {
+  const isSelected = selectedPlanet === planet.name;
+
   return (
-    <div className="group relative overflow-hidden rounded-[2rem] border border-cyan-700/60 bg-black/70 backdrop-blur-md shadow-[0_0_28px_rgba(34,211,238,0.12)] hover:shadow-[0_0_38px_rgba(34,211,238,0.22)] hover:border-cyan-400/70 transition duration-300">
-      <div className="relative overflow-hidden">
+    <div
+      className={`group relative overflow-hidden rounded-[2rem] border bg-black/70 backdrop-blur-md shadow-[0_0_28px_rgba(34,211,238,0.12)] transition duration-300 ${
+        isSelected
+          ? "border-green-300 shadow-[0_0_42px_rgba(74,222,128,0.22)]"
+          : "border-cyan-700/60 hover:shadow-[0_0_38px_rgba(34,211,238,0.22)] hover:border-cyan-400/70"
+      }`}
+    >
+      <button
+        type="button"
+        onClick={() => onChoose(planet.name)}
+        disabled={!canChoose}
+        className="relative block w-full overflow-hidden text-left disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+        aria-label={`Selecionar ${planet.name}`}
+      >
         <img src={planet.img} alt={planet.name} className="w-full h-72 object-cover group-hover:scale-105 transition duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
+        {!canChoose && <div className="absolute inset-0 bg-black/30" />}
         <div className="absolute top-4 left-4">
           <div className="bg-black/70 border border-cyan-500/40 rounded-full px-4 py-1 text-cyan-300 text-xs tracking-[0.25em]" style={FONT.mono}>
             PX-0{index + 1}
           </div>
         </div>
+        {canChoose && (
+          <div className="absolute top-4 right-4 bg-green-500/90 border border-green-100 rounded-full px-4 py-1 text-black text-xs font-black tracking-[0.18em]" style={FONT.mono}>
+            SELECIONAR
+          </div>
+        )}
         <div className="absolute bottom-5 left-5 right-5">
           <h3 className="text-4xl font-black text-white mb-2 drop-shadow-[0_0_10px_rgba(255,255,255,0.2)]" style={FONT.panel}>{planet.name}</h3>
           <div className="flex items-center gap-3">
@@ -609,7 +685,7 @@ const PlanetCard = memo(function PlanetCard({ planet, index }) {
             <p className="uppercase tracking-[0.25em] text-cyan-200 text-xs" style={FONT.mono}>{planet.type}</p>
           </div>
         </div>
-      </div>
+      </button>
 
       <div className="p-6">
         <div className="bg-cyan-950/20 border border-cyan-800/60 rounded-2xl p-4">
@@ -627,7 +703,10 @@ const PlanetCard = memo(function PlanetCard({ planet, index }) {
   );
 });
 
-const PlanetSection = memo(function PlanetSection() {
+const PlanetSection = memo(function PlanetSection({ revealed, selectedPlanet, missionStarted, timeLeft, onChoosePlanet }) {
+  const allExperimentsDone = EXPERIMENTS.every((_, index) => Boolean(revealed[index]));
+  const canChoose = allExperimentsDone && missionStarted && timeLeft > 0;
+
   return (
     <section className="relative z-10 px-6 mb-14">
       <div className="mb-8 text-center">
@@ -636,14 +715,21 @@ const PlanetSection = memo(function PlanetSection() {
       </div>
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
         {PLANETS.map((planet, index) => (
-          <PlanetCard key={planet.name} planet={planet} index={index} />
+          <PlanetCard
+            key={planet.name}
+            planet={planet}
+            index={index}
+            canChoose={canChoose}
+            selectedPlanet={selectedPlanet}
+            onChoose={onChoosePlanet}
+          />
         ))}
       </div>
     </section>
   );
 });
 
-const DecisionSection = memo(function DecisionSection({ revealed, selectedPlanet, setSelectedPlanet, missionStarted, timeLeft, onCheck, result }) {
+const DecisionSection = memo(function DecisionSection({ revealed, result }) {
   const allExperimentsDone = EXPERIMENTS.every((_, index) => Boolean(revealed[index]));
 
   return (
@@ -652,30 +738,8 @@ const DecisionSection = memo(function DecisionSection({ revealed, selectedPlanet
         <h2 className="text-3xl text-green-300 font-bold mb-6">Decisão Final</h2>
 
         {allExperimentsDone ? (
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-            <div className="relative w-full md:w-80">
-              <select
-                value={selectedPlanet}
-                onChange={(event) => setSelectedPlanet(event.target.value)}
-                className="w-full appearance-none bg-gray-950 border border-green-500 text-green-200 p-4 pr-12 rounded-2xl shadow-lg focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-300 cursor-pointer"
-              >
-                <option value="">Selecionar planeta</option>
-                <option>Mercúrio</option>
-                <option>Vênus</option>
-                <option>Marte</option>
-                <option>Júpiter</option>
-                <option>Netuno</option>
-              </select>
-              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-green-300 text-xl">▾</div>
-            </div>
-
-            <button
-              onClick={onCheck}
-              disabled={!missionStarted || selectedPlanet === "" || timeLeft <= 0}
-              className="bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:text-gray-400 transition px-8 py-4 rounded-2xl font-bold shadow-lg border border-green-400/40"
-            >
-              Confirmar
-            </button>
+          <div className="bg-green-950/20 border border-green-700/70 rounded-2xl p-5 text-green-100 max-w-2xl mx-auto" style={FONT.narrative}>
+            As evidências estão completas. Escolha o planeta clicando diretamente na imagem correspondente nos perfis planetários.
           </div>
         ) : (
           <div className="bg-gray-950 border border-green-800 rounded-2xl p-5 text-gray-300 max-w-2xl mx-auto" style={FONT.narrative}>
@@ -686,6 +750,48 @@ const DecisionSection = memo(function DecisionSection({ revealed, selectedPlanet
         {result && <p className="mt-6 text-cyan-300 text-lg font-semibold">{result}</p>}
       </div>
     </section>
+  );
+});
+
+const PlanetConfirmDialog = memo(function PlanetConfirmDialog({ planetName, onCancel, onConfirm }) {
+  if (!planetName) return null;
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
+      <div className="w-full max-w-xl overflow-hidden rounded-[2rem] border border-green-400/80 bg-gray-950/95 text-center shadow-[0_0_55px_rgba(74,222,128,0.25)]" style={FONT.panel}>
+        <div className="border-b border-green-800/70 bg-green-950/25 px-5 py-4">
+          <p className="text-xs uppercase tracking-[0.35em] text-green-300" style={FONT.mono}>
+            Confirmação orbital
+          </p>
+        </div>
+
+        <div className="p-6 sm:p-8">
+          <h2 className="mb-4 text-3xl font-black text-green-300">
+            Confirmar {planetName}?
+          </h2>
+          <p className="mx-auto mb-7 max-w-md text-gray-200 leading-relaxed" style={FONT.narrative}>
+            A equipe deseja registrar {planetName} como o planeta onde P.A.D. está preso?
+          </p>
+
+          <div className="flex flex-col sm:flex-row justify-center gap-3">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="rounded-2xl border border-gray-500/70 bg-black/70 px-6 py-3 font-bold text-gray-200 transition hover:bg-gray-900"
+            >
+              Revisar evidências
+            </button>
+            <button
+              type="button"
+              onClick={onConfirm}
+              className="rounded-2xl border border-green-200/80 bg-green-500 px-6 py-3 font-black text-black shadow-[0_0_28px_rgba(74,222,128,0.35)] transition hover:bg-green-400"
+            >
+              Confirmar planeta
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 });
 
@@ -759,6 +865,7 @@ function RoverWorkshopMissionContent() {
   const [revealed, setRevealed] = useState({});
   const [notes, setNotes] = useState({});
   const [selectedPlanet, setSelectedPlanet] = useState("");
+  const [pendingPlanet, setPendingPlanet] = useState("");
   const [result, setResult] = useState("");
   const [missionFinished, setMissionFinished] = useState(false);
   const [missionFailed, setMissionFailed] = useState(null);
@@ -842,8 +949,8 @@ function RoverWorkshopMissionContent() {
     setNotes((prev) => ({ ...prev, [index]: value }));
   };
 
-  const checkAnswer = () => {
-    if (selectedPlanet === "Mercúrio") {
+  const checkAnswer = (planetChoice = selectedPlanet) => {
+    if (planetChoice === "Mercúrio") {
       playTone("success");
       setResult("Missão concluída com sucesso. O rover foi localizado em Mercúrio.");
       setMissionFinished(true);
@@ -857,6 +964,27 @@ function RoverWorkshopMissionContent() {
     setMissionFailed("wrongPlanet");
   };
 
+  const choosePlanetFromCard = (planetName) => {
+    const allExperimentsDone = EXPERIMENTS.every((_, index) => Boolean(revealed[index]));
+
+    if (!allExperimentsDone || !missionStarted || timeLeft <= 0) return;
+
+    setSelectedPlanet(planetName);
+    setPendingPlanet(planetName);
+  };
+
+  const cancelPlanetChoice = () => {
+    playTone("click");
+    setPendingPlanet("");
+  };
+
+  const confirmPlanetChoice = () => {
+    if (!pendingPlanet) return;
+
+    checkAnswer(pendingPlanet);
+    setPendingPlanet("");
+  };
+
   const resetMission = () => {
     playTone("click");
     setMissionStarted(false);
@@ -867,6 +995,7 @@ function RoverWorkshopMissionContent() {
     setRevealed({});
     setNotes({});
     setSelectedPlanet("");
+    setPendingPlanet("");
     setResult("");
   };
 
@@ -928,15 +1057,21 @@ if (introOpen) {
         onNoteChange={updateNote}
         onSave={saveExperimentProgress}
       />
-      <PlanetSection />
-      <DecisionSection
+      <PlanetSection
         revealed={revealed}
         selectedPlanet={selectedPlanet}
-        setSelectedPlanet={setSelectedPlanet}
         missionStarted={missionStarted}
         timeLeft={timeLeft}
-        onCheck={checkAnswer}
+        onChoosePlanet={choosePlanetFromCard}
+      />
+      <DecisionSection
+        revealed={revealed}
         result={result}
+      />
+      <PlanetConfirmDialog
+        planetName={pendingPlanet}
+        onCancel={cancelPlanetChoice}
+        onConfirm={confirmPlanetChoice}
       />
     </div>
   );
