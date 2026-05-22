@@ -1033,6 +1033,53 @@ const PlanetConfirmDialog = memo(function PlanetConfirmDialog({ planetName, onCa
   );
 });
 
+const FinalTransmissionImage = memo(function FinalTransmissionImage({ src, alt, tone = "emerald", status }) {
+  const isSuccess = tone === "emerald";
+  const borderClass = isSuccess ? "border-emerald-400/70" : "border-red-500/70";
+  const headerClass = isSuccess ? "border-emerald-800/70 bg-emerald-950/25" : "border-red-800/70 bg-red-950/25";
+  const labelClass = isSuccess ? "text-emerald-300" : "text-red-300";
+  const statusClass = isSuccess ? "text-emerald-100" : "text-red-100";
+  const glowClass = isSuccess ? "shadow-[0_0_35px_rgba(16,185,129,0.25)]" : "shadow-[0_0_35px_rgba(185,28,28,0.3)]";
+  const bodyClass = isSuccess
+    ? "bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.18),rgba(0,0,0,0.9)_62%)]"
+    : "bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.18),rgba(0,0,0,0.9)_62%)]";
+  const scanlineClass = isSuccess
+    ? "bg-[linear-gradient(rgba(16,185,129,0.1)_1px,transparent_1px)]"
+    : "bg-[linear-gradient(rgba(248,113,113,0.1)_1px,transparent_1px)]";
+  const insetClass = isSuccess
+    ? "shadow-[inset_0_0_55px_rgba(16,185,129,0.32)]"
+    : "shadow-[inset_0_0_55px_rgba(185,28,28,0.34)]";
+  const washClass = isSuccess ? "to-emerald-300/10" : "to-red-300/10";
+  const imageGlowClass = isSuccess
+    ? "drop-shadow-[0_0_24px_rgba(52,211,153,0.22)]"
+    : "drop-shadow-[0_0_24px_rgba(248,113,113,0.22)]";
+
+  return (
+    <div className={`relative overflow-hidden rounded-2xl border bg-black/70 ${borderClass} ${glowClass}`}>
+      <div className={`flex items-center justify-between border-b px-4 py-2 ${headerClass}`} style={FONT.mono}>
+        <span className={`text-[10px] uppercase tracking-[0.28em] ${labelClass}`}>
+          Transmissão recuperada
+        </span>
+        <span className={`text-[10px] uppercase tracking-[0.2em] ${statusClass}`}>
+          {status}
+        </span>
+      </div>
+      <div className={`relative overflow-hidden p-2 ${bodyClass}`}>
+        <div className={`absolute inset-0 pointer-events-none bg-[size:100%_7px] mix-blend-screen ${scanlineClass}`} />
+        <div className={`absolute inset-0 pointer-events-none ${insetClass}`} />
+        <div className={`absolute inset-0 pointer-events-none bg-gradient-to-t from-black/35 via-transparent ${washClass}`} />
+        <div className={`relative rounded-xl border ${borderClass} bg-black/35 p-1`}>
+          <img
+            src={src}
+            alt={alt}
+            className={`relative mx-auto h-[34vh] max-h-[22rem] w-full object-contain opacity-95 mix-blend-lighten md:h-[58vh] md:max-h-[34rem] ${imageGlowClass}`}
+          />
+        </div>
+      </div>
+    </div>
+  );
+});
+
 const FailureScreen = memo(function FailureScreen({ missionFailed, onReset }) {
   const failureTitle =
     missionFailed === "wrongPlanet"
@@ -1045,18 +1092,23 @@ const FailureScreen = memo(function FailureScreen({ missionFailed, onReset }) {
       : "O tempo da missão acabou antes da conclusão da análise. Sem orientação da equipe, o rover não resistiu às condições extremas do planeta desconhecido.";
 
   return (
-    <div className="min-h-screen text-white flex items-center justify-center p-4 sm:p-6 md:p-10 relative overflow-hidden bg-cover bg-center" style={createBackgroundStyle(0.84)}>
+    <div className="h-screen text-white flex items-center justify-center p-3 sm:p-4 relative overflow-hidden bg-cover bg-center" style={createBackgroundStyle(0.84)}>
       <DustLayer />
-      <div className="relative z-10 w-full max-w-5xl mx-auto bg-black/80 border border-red-600/80 rounded-[2rem] p-5 sm:p-6 md:p-10 text-center shadow-[0_0_45px_rgba(185,28,28,0.35)] backdrop-blur-md">
-        <p className="uppercase tracking-[0.45em] text-red-400 text-sm font-bold mb-6" style={FONT.mono}>Falha na missão</p>
-        <h1 className="text-4xl md:text-7xl font-extrabold tracking-tight leading-none text-red-300 mb-8 drop-shadow-[0_0_18px_rgba(248,113,113,0.45)]">{failureTitle}</h1>
-        <div className="relative mb-8 overflow-hidden rounded-3xl border border-red-800 shadow-[0_0_35px_rgba(127,29,29,0.45)]">
-          <img src={missionFailed === "timeExpired" ? falhaTempoImg : falhaPlanetaImg} alt="Falha da missão" className="w-full max-h-[520px] object-cover" />
+      <div className="relative z-10 grid w-full max-w-6xl mx-auto gap-4 bg-black/80 border border-red-600/80 rounded-[1.5rem] p-3 sm:p-4 text-center shadow-[0_0_45px_rgba(185,28,28,0.35)] backdrop-blur-md md:grid-cols-[1.35fr_0.85fr] md:items-center md:text-left">
+        <FinalTransmissionImage
+          src={missionFailed === "timeExpired" ? falhaTempoImg : falhaPlanetaImg}
+          alt="Falha da missão"
+          tone="red"
+          status="Sinal crítico"
+        />
+        <div className="flex min-h-0 flex-col justify-center">
+          <p className="uppercase tracking-[0.35em] text-red-400 text-xs font-bold mb-2" style={FONT.mono}>Falha na missão</p>
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold tracking-tight leading-none text-red-300 mb-3 drop-shadow-[0_0_18px_rgba(248,113,113,0.45)]">{failureTitle}</h1>
+          <p className="text-gray-200 text-sm md:text-base leading-relaxed mb-4 font-light tracking-wide" style={FONT.narrative}>{failureText}</p>
+          <button onClick={onReset} className="self-center md:self-start bg-red-700 hover:bg-red-600 border border-red-400/60 px-5 py-2.5 rounded-2xl font-semibold transition shadow-[0_0_20px_rgba(185,28,28,0.35)]">
+            Reiniciar missão
+          </button>
         </div>
-        <p className="text-gray-200 text-lg md:text-xl leading-relaxed mb-8 max-w-4xl mx-auto font-light tracking-wide" style={FONT.narrative}>{failureText}</p>
-        <button onClick={onReset} className="bg-red-700 hover:bg-red-600 border border-red-400/60 px-6 py-3 rounded-2xl font-semibold transition shadow-[0_0_20px_rgba(185,28,28,0.35)]">
-          Reiniciar missão
-        </button>
       </div>
     </div>
   );
@@ -1064,32 +1116,32 @@ const FailureScreen = memo(function FailureScreen({ missionFailed, onReset }) {
 
 const VictoryScreen = memo(function VictoryScreen({ notes, onReset }) {
   return (
-    <div className="min-h-screen text-white flex items-center justify-center p-4 sm:p-6 md:p-10 relative overflow-hidden bg-cover bg-center" style={createBackgroundStyle(0.72)}>
+    <div className="h-screen text-white flex items-center justify-center p-3 sm:p-4 relative overflow-hidden bg-cover bg-center" style={createBackgroundStyle(0.72)}>
       <DustLayer />
-      <div className="relative z-10 w-full max-w-6xl mx-auto bg-black/78 border border-emerald-400/80 rounded-[2rem] p-5 sm:p-6 md:p-10 text-center shadow-[0_0_55px_rgba(16,185,129,0.25)] backdrop-blur-md">
-        <p className="uppercase tracking-[0.45em] text-emerald-300 text-sm font-bold mb-6" style={FONT.mono}>Missão concluída</p>
-        <h1 className="text-4xl md:text-7xl font-extrabold tracking-tight leading-none text-emerald-300 mb-8 drop-shadow-[0_0_18px_rgba(52,211,153,0.45)]">Rover localizado em Mercúrio</h1>
-        <div className="relative mb-8 overflow-hidden rounded-3xl border border-emerald-700 shadow-[0_0_35px_rgba(16,185,129,0.25)]">
-          <img src={vitoriaImg} alt="Vitória da missão" className="w-full max-h-[520px] object-cover" />
-        </div>
-        <p className="text-gray-200 text-lg md:text-xl leading-relaxed mb-8 max-w-4xl mx-auto font-light tracking-wide" style={FONT.narrative}>
-          A análise das amostras, da atmosfera e da assinatura mineral confirmou que o rover pousou em Mercúrio. A comunicação foi estabilizada e os dados científicos foram enviados para a Central Espacial.
-        </p>
+      <div className="relative z-10 grid w-full max-w-7xl mx-auto gap-4 bg-black/78 border border-emerald-400/80 rounded-[1.5rem] p-3 sm:p-4 text-center shadow-[0_0_55px_rgba(16,185,129,0.25)] backdrop-blur-md md:grid-cols-[1.25fr_0.95fr] md:items-center md:text-left">
+        <FinalTransmissionImage src={vitoriaImg} alt="Vitória da missão" status="Sinal estável" />
+        <div className="flex min-h-0 flex-col justify-center">
+          <p className="uppercase tracking-[0.35em] text-emerald-300 text-xs font-bold mb-2" style={FONT.mono}>Missão concluída</p>
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold tracking-tight leading-none text-emerald-300 mb-3 drop-shadow-[0_0_18px_rgba(52,211,153,0.45)]">Rover localizado em Mercúrio</h1>
+          <p className="text-gray-200 text-sm md:text-base leading-relaxed mb-3 font-light tracking-wide" style={FONT.narrative}>
+            A análise das amostras, da atmosfera e da assinatura mineral confirmou que o rover pousou em Mercúrio. A comunicação foi estabilizada e os dados científicos foram enviados para a Central Espacial.
+          </p>
 
-        <div className="grid md:grid-cols-3 gap-4 text-left mb-8" style={FONT.panel}>
-          {EXPERIMENTS.map((experiment, index) => (
-            <div key={experiment.title} className="bg-emerald-950/20 border border-emerald-700/80 rounded-2xl p-5 shadow-[0_0_18px_rgba(16,185,129,0.12)]">
-              <p className="text-emerald-300 text-xl font-bold mb-2">{experiment.title}</p>
-              <p className="text-gray-300 whitespace-pre-wrap" style={FONT.narrative}>
-                {notes[index]?.trim() || "Nenhuma anotação registrada pela equipe."}
-              </p>
-            </div>
-          ))}
-        </div>
+          <div className="grid gap-2 text-left mb-4 max-h-[26vh] overflow-y-auto pr-1" style={FONT.panel}>
+            {EXPERIMENTS.map((experiment, index) => (
+              <div key={experiment.title} className="bg-emerald-950/20 border border-emerald-700/80 rounded-xl p-2.5 shadow-[0_0_18px_rgba(16,185,129,0.12)]">
+                <p className="text-emerald-300 text-sm font-bold mb-1">{experiment.title}</p>
+                <p className="text-gray-300 text-xs sm:text-sm whitespace-pre-wrap" style={FONT.narrative}>
+                  {notes[index]?.trim() || "Nenhuma anotação registrada pela equipe."}
+                </p>
+              </div>
+            ))}
+          </div>
 
-        <button onClick={onReset} className="bg-gray-800 hover:bg-gray-700 border border-gray-500/60 px-6 py-3 rounded-2xl font-semibold transition">
-          Reiniciar missão
-        </button>
+          <button onClick={onReset} className="self-center md:self-start bg-gray-800 hover:bg-gray-700 border border-gray-500/60 px-5 py-2.5 rounded-2xl font-semibold transition">
+            Reiniciar missão
+          </button>
+        </div>
       </div>
     </div>
   );
