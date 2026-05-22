@@ -112,6 +112,11 @@ const INDICATOR_EXPLANATION = [
   "Essas mudanças acontecem porque a estrutura química das antocianinas se altera de acordo com a concentração de íons H⁺ presentes na solução, modificando a forma como a luz é absorvida pela molécula.",
 ];
 
+const PYROGNOSTIC_EXPLANATION = [
+  "Nesse procedimento, pequenas quantidades da amostra são aquecidas em alta temperatura. Quando certos elementos químicos presentes no material recebem energia térmica, seus elétrons passam para níveis mais energéticos. Ao retornarem ao estado original, liberam energia na forma de luz visível, produzindo cores características.",
+  "Cada elemento químico emite uma coloração diferente durante a queima. O sódio, por exemplo, produz tons amarelados; o cobre pode gerar coloração esverdeada ou azulada; já o potássio tende a apresentar tons lilases.",
+];
+
 const FONT = {
   base: { fontFamily: "Orbitron, Rajdhani, Inter, sans-serif" },
   mono: { fontFamily: "Share Tech Mono, monospace" },
@@ -713,8 +718,12 @@ const Timeline = memo(function Timeline({ revealed }) {
 
 const ExperimentCard = memo(function ExperimentCard({ experiment, index, missionStarted, note, onNoteChange, onSave }) {
   const [showIndicatorInfo, setShowIndicatorInfo] = useState(false);
+  const [showPyrognosticInfo, setShowPyrognosticInfo] = useState(false);
   const hasIndicatorLink = experiment.code === "EXP-02";
+  const hasPyrognosticLink = experiment.code === "EXP-03";
   const descriptionParts = hasIndicatorLink ? experiment.description.split("indicador") : null;
+  const pyrognosticDescriptionParts = hasPyrognosticLink ? experiment.description.split("análises geológicas") : null;
+  const hasNote = Boolean(note?.trim());
 
   return (
     <div className="group bg-gray-950/75 backdrop-blur-md border border-gray-700/80 rounded-3xl p-6 shadow-xl relative overflow-hidden hover:border-cyan-500/70 hover:shadow-[0_0_30px_rgba(34,211,238,0.15)] transition" style={FONT.panel}>
@@ -734,6 +743,18 @@ const ExperimentCard = memo(function ExperimentCard({ experiment, index, mission
             </button>
             {descriptionParts.slice(1).join("indicador")}
           </>
+        ) : hasPyrognosticLink ? (
+          <>
+            {pyrognosticDescriptionParts[0]}
+            <button
+              type="button"
+              onClick={() => setShowPyrognosticInfo(true)}
+              className="text-cyan-200 underline decoration-cyan-300/70 underline-offset-4 transition hover:text-cyan-50"
+            >
+              análises geológicas
+            </button>
+            {pyrognosticDescriptionParts.slice(1).join("análises geológicas")}
+          </>
         ) : (
           experiment.description
         )}
@@ -742,7 +763,7 @@ const ExperimentCard = memo(function ExperimentCard({ experiment, index, mission
 
       <button
         onClick={() => onSave(index)}
-        disabled={!missionStarted}
+        disabled={!missionStarted || !hasNote}
         className="bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-700 disabled:text-gray-400 px-4 py-2 rounded-xl transition border border-cyan-300/40 font-bold"
       >
         Salvar anotações do experimento
@@ -788,6 +809,39 @@ const ExperimentCard = memo(function ExperimentCard({ experiment, index, mission
           </div>
         </div>
       )}
+
+      {showPyrognosticInfo && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-3xl rounded-[2rem] border border-orange-400/80 bg-gray-950/95 shadow-[0_0_55px_rgba(249,115,22,0.22)]">
+            <div className="border-b border-orange-800/70 bg-orange-950/25 px-5 py-4 text-center">
+              <p className="text-xs uppercase tracking-[0.35em] text-orange-300" style={FONT.mono}>
+                Banco químico
+              </p>
+              <h2 className="mt-2 text-3xl font-black text-orange-100" style={FONT.panel}>
+                Teste pirognóstico
+              </h2>
+            </div>
+
+            <div className="max-h-[70vh] overflow-y-auto p-5 sm:p-7">
+              <div className="space-y-4 text-gray-200 leading-relaxed" style={FONT.narrative}>
+                {PYROGNOSTIC_EXPLANATION.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
+
+              <div className="mt-6 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setShowPyrognosticInfo(false)}
+                  className="rounded-2xl border border-orange-200/80 bg-orange-600 px-7 py-3 font-black text-white shadow-[0_0_28px_rgba(249,115,22,0.28)] transition hover:bg-orange-500"
+                >
+                  Fechar análise
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 });
@@ -817,7 +871,7 @@ const ExperimentSection = memo(function ExperimentSection({ revealed, missionSta
   );
 });
 
-const PlanetCard = memo(function PlanetCard({ planet, index, canChoose, selectedPlanet, onChoose }) {
+const PlanetCard = memo(function PlanetCard({ planet, canChoose, selectedPlanet, onChoose }) {
   const isSelected = selectedPlanet === planet.name;
 
   return (
@@ -840,11 +894,6 @@ const PlanetCard = memo(function PlanetCard({ planet, index, canChoose, selected
         <img src={planet.img} alt={planet.name} className="w-full h-72 object-cover group-hover:scale-105 transition duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
         {!canChoose && <div className="absolute inset-0 bg-black/45" />}
-        <div className="absolute top-4 left-4">
-          <div className="bg-black/70 border border-cyan-500/40 rounded-full px-4 py-1 text-cyan-300 text-xs tracking-[0.25em]" style={FONT.mono}>
-            PX-0{index + 1}
-          </div>
-        </div>
         {canChoose && (
           <div className="absolute top-4 right-4 bg-green-500/90 border border-green-100 rounded-full px-4 py-1 text-black text-xs font-black tracking-[0.18em]" style={FONT.mono}>
             SELECIONAR
@@ -868,14 +917,7 @@ const PlanetCard = memo(function PlanetCard({ planet, index, canChoose, selected
             <p className="text-gray-200">{planet.colors}</p>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-3">
-            <div className="rounded-2xl border border-cyan-800/60 bg-black/35 p-4">
-              <p className="mb-1 text-xs uppercase tracking-[0.2em] text-cyan-300" style={FONT.mono}>
-                Tipo
-              </p>
-              <p className="text-gray-200">{planet.type}</p>
-            </div>
-
+          <div className="grid gap-3">
             <div className="rounded-2xl border border-cyan-800/60 bg-black/35 p-4">
               <p className="mb-1 text-xs uppercase tracking-[0.2em] text-cyan-300" style={FONT.mono}>
                 pH atmosférico
@@ -911,11 +953,10 @@ const PlanetSection = memo(function PlanetSection({ revealed, selectedPlanet, mi
         <h2 className="text-4xl md:text-5xl font-black text-cyan-200 drop-shadow-[0_0_18px_rgba(34,211,238,0.25)]" style={FONT.panel}>Perfis Planetários</h2>
       </div>
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
-        {PLANETS.map((planet, index) => (
+        {PLANETS.map((planet) => (
           <PlanetCard
             key={planet.name}
             planet={planet}
-            index={index}
             canChoose={canChoose}
             selectedPlanet={selectedPlanet}
             onChoose={onChoosePlanet}
@@ -1132,6 +1173,7 @@ function RoverWorkshopMissionContent() {
 
   const saveExperimentProgress = (index) => {
     if (!missionStarted) return;
+    if (!notes[index]?.trim()) return;
 
     playTone("success");
     setRevealed((prev) => ({ ...prev, [index]: true }));
