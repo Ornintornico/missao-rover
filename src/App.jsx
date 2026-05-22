@@ -105,6 +105,13 @@ const PLANETS = [
   },
 ];
 
+const INDICATOR_EXPLANATION = [
+  "Indicador natural produzido a partir do repolho roxo. Esse extrato é rico em antocianinas, pigmentos naturais pertencentes ao grupo dos flavonoides, capazes de mudar de cor conforme o pH da solução analisada.",
+  "Um indicador é uma substância capaz de mostrar, através de mudanças de cor, se um meio é ácido, neutro ou básico. Essas substâncias funcionam porque suas moléculas sofrem alterações químicas quando entram em contato com diferentes concentrações de íons H⁺ presentes na solução. Ao mudar sua estrutura química, o indicador também muda a forma como absorve e reflete a luz, fazendo com que diferentes cores sejam observadas.",
+  "O pH indica se uma substância é ácida, neutra ou básica. Em meios ácidos, as antocianinas apresentam tons avermelhados ou rosados. Em soluções neutras, mantêm a coloração roxa característica. Já em meios básicos, podem adquirir tons azulados, esverdeados ou amarelados.",
+  "Essas mudanças acontecem porque a estrutura química das antocianinas se altera de acordo com a concentração de íons H⁺ presentes na solução, modificando a forma como a luz é absorvida pela molécula.",
+];
+
 const FONT = {
   base: { fontFamily: "Orbitron, Rajdhani, Inter, sans-serif" },
   mono: { fontFamily: "Share Tech Mono, monospace" },
@@ -705,12 +712,32 @@ const Timeline = memo(function Timeline({ revealed }) {
 });
 
 const ExperimentCard = memo(function ExperimentCard({ experiment, index, missionStarted, note, onNoteChange, onSave }) {
+  const [showIndicatorInfo, setShowIndicatorInfo] = useState(false);
+  const hasIndicatorLink = experiment.code === "EXP-02";
+  const descriptionParts = hasIndicatorLink ? experiment.description.split("indicador") : null;
+
   return (
     <div className="group bg-gray-950/75 backdrop-blur-md border border-gray-700/80 rounded-3xl p-6 shadow-xl relative overflow-hidden hover:border-cyan-500/70 hover:shadow-[0_0_30px_rgba(34,211,238,0.15)] transition" style={FONT.panel}>
       <p className="text-xs tracking-[0.25em] text-orange-300 font-bold mb-4">{experiment.code}</p>
       <p className="text-xs tracking-[0.2em] text-gray-400 mb-2">{experiment.phase}</p>
       <h3 className="text-cyan-300 text-3xl font-bold mb-4 leading-tight">{experiment.title}</h3>
-      <p className="text-gray-300 leading-relaxed mb-4" style={FONT.narrative}>{experiment.description}</p>
+      <p className="text-gray-300 leading-relaxed mb-4" style={FONT.narrative}>
+        {hasIndicatorLink ? (
+          <>
+            {descriptionParts[0]}
+            <button
+              type="button"
+              onClick={() => setShowIndicatorInfo(true)}
+              className="text-cyan-200 underline decoration-cyan-300/70 underline-offset-4 transition hover:text-cyan-50"
+            >
+              indicador
+            </button>
+            {descriptionParts.slice(1).join("indicador")}
+          </>
+        ) : (
+          experiment.description
+        )}
+      </p>
       <div className="bg-black/45 border border-gray-700 rounded-2xl p-4 text-sm text-gray-400 mb-4" style={FONT.mono}>{experiment.science}</div>
 
       <button
@@ -728,6 +755,39 @@ const ExperimentCard = memo(function ExperimentCard({ experiment, index, mission
         className="w-full mt-4 bg-black/45 border border-gray-700 rounded-2xl p-4 text-gray-300 min-h-[120px] resize-none focus:outline-none focus:border-cyan-500"
         style={FONT.narrative}
       />
+
+      {showIndicatorInfo && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/80 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-3xl rounded-[2rem] border border-cyan-400/80 bg-gray-950/95 shadow-[0_0_55px_rgba(34,211,238,0.22)]">
+            <div className="border-b border-cyan-800/70 bg-cyan-950/25 px-5 py-4 text-center">
+              <p className="text-xs uppercase tracking-[0.35em] text-cyan-300" style={FONT.mono}>
+                Banco químico
+              </p>
+              <h2 className="mt-2 text-3xl font-black text-cyan-100" style={FONT.panel}>
+                Indicador natural
+              </h2>
+            </div>
+
+            <div className="max-h-[70vh] overflow-y-auto p-5 sm:p-7">
+              <div className="space-y-4 text-gray-200 leading-relaxed" style={FONT.narrative}>
+                {INDICATOR_EXPLANATION.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
+              </div>
+
+              <div className="mt-6 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setShowIndicatorInfo(false)}
+                  className="rounded-2xl border border-cyan-200/80 bg-cyan-600 px-7 py-3 font-black text-white shadow-[0_0_28px_rgba(34,211,238,0.28)] transition hover:bg-cyan-500"
+                >
+                  Fechar análise
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 });
