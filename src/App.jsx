@@ -11,27 +11,27 @@ const EXPERIMENTS = [
     code: "EXP-01",
     title: "Análise de Estrutura",
     description:
-      "As amostras coletadas indicam um planeta com superfície sólida e alta densidade mineral.",
+      "P.A.D enviou amostras de rochas.",
     science:
-      "Os sensores detectaram superfície sólida, descartando planetas gasosos como possíveis locais de pouso.",
+      "Os sensores detectaram um matérial sólido, talvez seja da superfície do Planeta. O material deve ser analisado cuidadosamente com o auxílio do super foco tecnológico.",
   },
   {
     phase: "FASE 2",
     code: "EXP-02",
-    title: "pH com Repolho Roxo",
+    title: "Camaleão da Escala",
     description:
-      "As partículas atmosféricas analisadas indicam um planeta com atmosfera extremamente fina e baixa retenção gasosa.",
+      "P.A.D enviou uma amostra que reage com nosso indicador.",
     science:
-      "Os sensores registraram baixa densidade atmosférica, compatível com planetas pequenos e rochosos próximos ao Sol.",
+      "A substância reage estranhamente com nosso indicador, talvez P.A.D esteja tentando dar instruções sobre as condições de Ph do Planeta.",
   },
   {
     phase: "FASE 3",
     code: "EXP-03",
     title: "Teste Pirognóstico",
     description:
-      "As análises geológicas identificaram uma superfície antiga marcada por intensa atividade vulcânica no passado.",
+      "P.A.D enviou análises geológicas.",
     science:
-      "As formações minerais encontradas são compatíveis com crostas resfriadas de origem vulcânica, semelhantes às observadas em Mercúrio.",
+      "As amostras de P.A.D emitem uma luz estranhamente chamativa. Talvez nosso amigo esteja tentando nos mostrar a composição Química do Planeta.",
   },
 ];
 
@@ -166,7 +166,7 @@ const DustLayer = memo(function DustLayer() {
   );
 });
 
-const CinematicIntroScreen = memo(function CinematicIntroScreen({ onFinish }) {
+const IntroScreen = memo(function IntroScreen({ bootText, onStart }) {
   const [showButton, setShowButton] = useState(false);
 
   useEffect(() => {
@@ -183,6 +183,7 @@ const CinematicIntroScreen = memo(function CinematicIntroScreen({ onFinish }) {
       style={createBackgroundStyle(0.92)}
     >
       <DustLayer />
+
       <div className="absolute inset-0 bg-black/70 z-0" />
 
       <style>
@@ -214,12 +215,12 @@ const CinematicIntroScreen = memo(function CinematicIntroScreen({ onFinish }) {
             left: 50%;
             transform: translateX(-50%) rotateX(25deg);
             transform-origin: 50% 100%;
-            animation: crawl 34s linear forwards;
+            animation: crawl 40s linear forwards;
             font-family: "Orbitron", sans-serif;
             color: #fde68a;
             text-align: justify;
-            line-height: 2.4;
-            font-size: clamp(1.2rem, 2.5vw, 2.4rem);
+            line-height: 1.9;
+            font-size: clamp(1rem, 2vw, 2rem);
             font-weight: 700;
             letter-spacing: 0.04em;
           }
@@ -264,10 +265,13 @@ const CinematicIntroScreen = memo(function CinematicIntroScreen({ onFinish }) {
         <div className="starwars-crawl">
           <div className="crawl-title">
             <p>MISSÃO P.A.D-01</p>
+
             <h1>SPORT</h1>
           </div>
 
-          <p>Ano 2084.</p>
+          <p>
+            Ano 2084.
+          </p>
 
           <p>
             Após décadas de exploração espacial, a Agência Orbital Sul-Americana
@@ -277,7 +281,8 @@ const CinematicIntroScreen = memo(function CinematicIntroScreen({ onFinish }) {
 
           <p>
             A unidade autônoma P.A.D-01 foi enviada em uma missão experimental
-            para coletar amostras atmosféricas e geológicas em regiões desconhecidas.
+            para coletar amostras atmosféricas e geológicas em regiões
+            desconhecidas.
           </p>
 
           <p>
@@ -286,13 +291,14 @@ const CinematicIntroScreen = memo(function CinematicIntroScreen({ onFinish }) {
           </p>
 
           <p>
-            Apenas pequenos pacotes de dados científicos conseguiram retornar à Terra.
+            Apenas pequenos pacotes de dados científicos conseguiram retornar à
+            Terra.
           </p>
 
           <p>
-            Agora, a equipe científica deve interpretar os sinais enviados por P.A.D
-            para descobrir em qual planeta o rover está preso antes que a janela
-            orbital de resgate seja encerrada.
+            Agora, a equipe científica deve interpretar os sinais enviados por
+            P.A.D para descobrir em qual planeta o rover está preso antes que a
+            janela orbital de resgate seja encerrada.
           </p>
 
           <p>
@@ -305,91 +311,13 @@ const CinematicIntroScreen = memo(function CinematicIntroScreen({ onFinish }) {
       {showButton && (
         <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30 intro-button">
           <button
-            onClick={onFinish}
+            onClick={onStart}
             className="bg-yellow-400 hover:bg-yellow-300 text-black px-10 py-5 rounded-2xl text-xl font-black shadow-[0_0_40px_rgba(250,204,21,0.45)] transition border border-yellow-100"
           >
-            CONTINUAR TRANSMISSÃO
+            INICIAR TRANSMISSÃO
           </button>
         </div>
       )}
-    </div>
-  );
-});
-
-const IntroScreen = memo(function IntroScreen({ bootText, onStart }) {
-  return (
-    <div
-      className="min-h-screen text-white flex items-center justify-center p-6 relative overflow-hidden bg-cover bg-center"
-      style={createBackgroundStyle(0.76)}
-    >
-      <DustLayer />
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:100%_7px] opacity-20" />
-
-      <div className="relative z-10 w-full max-w-5xl bg-black/75 border border-cyan-500/70 rounded-[2rem] p-5 sm:p-8 md:p-12 text-center shadow-[0_0_55px_rgba(34,211,238,0.22)] backdrop-blur-md">
-        <h1 className="text-4xl sm:text-5xl md:text-8xl font-extrabold text-cyan-200 leading-tight mb-10 drop-shadow-[0_0_20px_rgba(34,211,238,0.35)] px-2">
-          Missão P.A.D.
-          <span className="block text-2xl md:text-4xl mt-4 text-cyan-100/90">
-            Localização Planetária Desconhecida
-          </span>
-        </h1>
-
-        <div className="mb-8 text-left bg-black/55 border border-cyan-800/70 rounded-3xl p-5 md:p-7 shadow-[0_0_35px_rgba(34,211,238,0.12)]">
-          <p className="uppercase tracking-[0.45em] text-cyan-300 text-xs mb-4" style={FONT.mono}>
-            TRANSMISSÃO RECEBIDA
-          </p>
-
-          <p className="uppercase tracking-[0.35em] text-cyan-200 text-sm min-h-[24px] mb-6" style={FONT.mono}>
-            {bootText}
-          </p>
-
-          <div className="space-y-4 text-gray-300 leading-relaxed" style={FONT.narrative}>
-            <div>
-              <p className="text-orange-300 font-bold mb-1" style={FONT.panel}>
-                AGÊNCIA ORBITAL SUL-AMERICANA
-              </p>
-              <p>Divisão de Exploração Exoplanetária • Programa SPORT</p>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-4 text-sm" style={FONT.mono}>
-              <div className="bg-cyan-950/20 border border-cyan-900/60 rounded-2xl p-4">
-                <p>PROTOCOLO: P.A.D-01</p>
-                <p>UNIDADE: Pathfinder Autonomous Droid</p>
-                <p>SETOR: COMANDO DE CIÊNCIA ORBITAL</p>
-                <p>ANO: 2084</p>
-              </div>
-
-              <div className="bg-red-950/20 border border-red-900/60 rounded-2xl p-4 text-red-200">
-                <p>STATUS: SINAL INSTÁVEL</p>
-                <p>PACOTES RECUPERADOS: 12%</p>
-                <p>INTEGRIDADE: CRÍTICA</p>
-                <p>JANELA ORBITAL LIMITADA</p>
-              </div>
-            </div>
-
-            <div className="bg-black/45 border border-cyan-900/60 rounded-2xl p-5">
-              <p className="text-cyan-300 uppercase tracking-[0.25em] text-xs mb-3" style={FONT.mono}>
-                RELATÓRIO AUTOMÁTICO
-              </p>
-              <p>
-                Durante a missão SPORT, a unidade de exploração P.A.D-01 perdeu comunicação após uma falha de navegação gravitacional.
-              </p>
-              <p className="mt-3">
-                Os sistemas automáticos identificaram um pouso não programado em um planeta desconhecido do Sistema Solar.
-              </p>
-              <p className="mt-3">
-                Sem identificação correta do planeta, a missão de resgate poderá falhar.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <button
-          onClick={onStart}
-          className="bg-cyan-600 hover:bg-cyan-500 border border-cyan-300/70 px-8 py-4 rounded-2xl font-bold transition shadow-[0_0_28px_rgba(34,211,238,0.28)]"
-        >
-          ACESSAR CENTRAL DA MISSÃO
-        </button>
-      </div>
     </div>
   );
 });
@@ -675,7 +603,6 @@ const VictoryScreen = memo(function VictoryScreen({ notes, onReset }) {
 });
 
 function RoverWorkshopMissionContent() {
-  const [cinematicIntro, setCinematicIntro] = useState(true);
   const [introOpen, setIntroOpen] = useState(true);
   const [missionStarted, setMissionStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(1800);
@@ -712,7 +639,7 @@ function RoverWorkshopMissionContent() {
   };
 
   useEffect(() => {
-    document.title = "Missão Rover — Investigação Planetária";
+    document.title = "Missão P.A.D — Investigação Planetária";
 
     [backgroundImg, falhaTempoImg, falhaPlanetaImg, vitoriaImg, ...PLANETS.map((planet) => planet.img)].forEach((src) => {
       const image = new Image();
@@ -797,7 +724,6 @@ function RoverWorkshopMissionContent() {
     setMissionStarted(false);
     setMissionFinished(false);
     setMissionFailed(null);
-    setCinematicIntro(true);
     setIntroOpen(true);
     setTimeLeft(1800);
     setRevealed({});
@@ -805,10 +731,6 @@ function RoverWorkshopMissionContent() {
     setSelectedPlanet("");
     setResult("");
   };
-
-  if (cinematicIntro) {
-    return <CinematicIntroScreen onFinish={() => setCinematicIntro(false)} />;
-  }
 
   if (introOpen) {
     return <IntroScreen bootText={bootText} onStart={startMission} />;
@@ -831,7 +753,7 @@ function RoverWorkshopMissionContent() {
       <header className="relative z-10 text-center px-6 py-10 md:py-14">
         <div className="inline-flex items-center justify-center gap-4 mb-6 rounded-full border border-cyan-400/50 bg-black/45 px-5 py-2 text-cyan-200 shadow-[0_0_25px_rgba(34,211,238,0.18)]" style={FONT.mono}>
           <span className="h-2 w-2 rounded-full bg-cyan-300 animate-pulse" />
-          <span className="uppercase tracking-[0.35em] text-xs md:text-sm">Central de missão escolar</span>
+          <span className="uppercase tracking-[0.35em] text-xs md:text-sm">Central de Missão</span>
         </div>
         <h1 className="text-4xl md:text-7xl font-extrabold tracking-tight leading-none text-cyan-300 drop-shadow-[0_0_18px_rgba(34,211,238,0.35)]">
           Missão Rover
