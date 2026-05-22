@@ -43,6 +43,8 @@ const PLANETS = [
   {
     name: "Mercúrio",
     type: "Rochoso",
+    colors: "Cinza escuro, marrom e tons metálicos.",
+    acidBase: "Sem atmosfera significativa; não há acidez/basicidade atmosférica relevante.",
     img: "https://upload.wikimedia.org/wikipedia/commons/4/4a/Mercury_in_true_color.jpg",
     facts: [
       "Possui superfície com marcas de antigas atividades vulcânicas.",
@@ -54,6 +56,8 @@ const PLANETS = [
   {
     name: "Vênus",
     type: "Rochoso",
+    colors: "Amarelo-pálido e branco devido às nuvens densas.",
+    acidBase: "Atmosfera muito ácida, com nuvens de ácido sulfúrico.",
     img: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg",
     facts: [
       "2º planeta do Sistema Solar.",
@@ -65,6 +69,8 @@ const PLANETS = [
   {
     name: "Marte",
     type: "Rochoso",
+    colors: "Vermelho, laranja e marrom por óxidos de ferro.",
+    acidBase: "Atmosfera fina de CO2; tendência levemente ácida quando interage com água.",
     img: "https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg",
     facts: [
       "Conhecido como Planeta Vermelho.",
@@ -76,6 +82,8 @@ const PLANETS = [
   {
     name: "Júpiter",
     type: "Gasoso",
+    colors: "Faixas brancas, beges, marrons e alaranjadas.",
+    acidBase: "Nuvens com amônia; regiões superiores tendem a comportamento básico.",
     img: "https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg",
     facts: [
       "Maior planeta do Sistema Solar.",
@@ -86,6 +94,8 @@ const PLANETS = [
   {
     name: "Netuno",
     type: "Gasoso",
+    colors: "Azul intenso devido ao metano na atmosfera.",
+    acidBase: "Atmosfera rica em hidrogênio, hélio e metano; sem indicação simples de acidez ou basicidade.",
     img: "https://upload.wikimedia.org/wikipedia/commons/5/56/Neptune_Full.jpg",
     facts: [
       "8º planeta do Sistema Solar.",
@@ -101,6 +111,8 @@ const FONT = {
   narrative: { fontFamily: "Inter, sans-serif" },
   panel: { fontFamily: "Rajdhani, sans-serif" },
 };
+
+const LOCKED_PLANET_CURSOR = "var(--cursor-locked)";
 
 function formatTime(seconds) {
   const minutes = Math.floor(seconds / 60);
@@ -528,33 +540,78 @@ const IntroScreen = memo(function IntroScreen({ bootText, onStart }) {
 });
 
 const MissionTimer = memo(function MissionTimer({ timeLeft, missionStarted, onStart, onAddTime, onRemoveTime }) {
+  const timeAdjustments = [
+    { label: "30s", seconds: 30 },
+    { label: "1 min", seconds: 60 },
+    { label: "5 min", seconds: 300 },
+    { label: "10 min", seconds: 600 },
+  ];
+
   return (
-    <section className="sticky top-3 z-50 mx-3 sm:mx-6 mb-10 overflow-hidden rounded-[1.5rem] border border-cyan-500/70 bg-black/85 backdrop-blur-xl shadow-[0_0_35px_rgba(8,145,178,0.22)]">
-      <div className="relative z-10 grid lg:grid-cols-[1fr_auto] gap-4 items-center p-3 sm:p-4 md:p-5" style={FONT.panel}>
-        <div>
+    <section className="relative z-10 mx-3 sm:mx-6 mb-10 overflow-hidden rounded-[1.5rem] border border-cyan-400/70 bg-black/78 backdrop-blur-xl shadow-[0_0_45px_rgba(34,211,238,0.18)]">
+      <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(90deg,rgba(34,211,238,0.12),transparent_24%,rgba(34,211,238,0.08)_50%,transparent_76%,rgba(34,211,238,0.12))]" />
+      <div className="absolute inset-x-0 top-0 h-px bg-cyan-200/80 shadow-[0_0_18px_rgba(103,232,249,0.75)]" />
+      <div className="absolute inset-x-6 bottom-0 h-px bg-cyan-700/70" />
+
+      <div className="relative z-10 grid xl:grid-cols-[minmax(260px,0.75fr)_1.35fr_auto] gap-5 items-stretch p-4 sm:p-5 md:p-6" style={FONT.panel}>
+        <div className="rounded-2xl border border-cyan-800/70 bg-cyan-950/15 p-4">
           <p className="text-[10px] sm:text-xs uppercase tracking-[0.32em] text-cyan-300 mb-1" style={FONT.mono}>
             Tempo operacional
           </p>
-          <p className="text-3xl sm:text-4xl md:text-5xl font-black text-white leading-none" style={FONT.mono}>
+          <p className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-none tracking-normal drop-shadow-[0_0_18px_rgba(34,211,238,0.28)]" style={FONT.mono}>
             {formatTime(timeLeft)}
           </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <button onClick={() => onAddTime(60)} className="bg-emerald-700/90 hover:bg-emerald-600 border border-emerald-300/50 px-5 py-3 rounded-2xl transition font-bold">
-              +1 min
-            </button>
-            <button onClick={() => onRemoveTime(60)} className="bg-red-700/90 hover:bg-red-600 border border-red-300/50 px-5 py-3 rounded-2xl transition font-bold">
-              -1 min
-            </button>
+          <div className="mt-4 flex items-center gap-3 text-xs uppercase tracking-[0.25em]" style={FONT.mono}>
+            <span className={`h-2.5 w-2.5 rounded-full ${missionStarted ? "bg-green-300 animate-pulse" : "bg-cyan-300"}`} />
+            <span className={missionStarted ? "text-green-300" : "text-cyan-200"}>
+              {missionStarted ? "Missão ativa" : "Aguardando início"}
+            </span>
           </div>
         </div>
 
-        <div className="flex flex-col items-stretch md:items-end gap-3">
+        <div className="grid gap-3 rounded-2xl border border-cyan-800/70 bg-black/35 p-4">
+          <div className="grid md:grid-cols-[auto_1fr] gap-3 items-center">
+              <span className="text-xs uppercase tracking-[0.22em] text-emerald-300" style={FONT.mono}>
+                Adicionar
+              </span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {timeAdjustments.map((option) => (
+                <button
+                  key={`add-${option.seconds}`}
+                  onClick={() => onAddTime(option.seconds)}
+                  className="bg-emerald-950/80 hover:bg-emerald-700/90 border border-emerald-300/50 px-3 py-2.5 rounded-xl transition font-bold text-emerald-100 shadow-[0_0_18px_rgba(16,185,129,0.08)]"
+                >
+                  +{option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-[auto_1fr] gap-3 items-center">
+              <span className="text-xs uppercase tracking-[0.22em] text-red-300" style={FONT.mono}>
+                Remover
+              </span>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {timeAdjustments.map((option) => (
+                <button
+                  key={`remove-${option.seconds}`}
+                  onClick={() => onRemoveTime(option.seconds)}
+                  className="bg-red-950/80 hover:bg-red-700/90 border border-red-300/50 px-3 py-2.5 rounded-xl transition font-bold text-red-100 shadow-[0_0_18px_rgba(239,68,68,0.08)]"
+                >
+                  -{option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col items-stretch justify-center gap-3">
           {!missionStarted ? (
-            <button onClick={onStart} className="bg-cyan-600 hover:bg-cyan-500 border border-cyan-300/70 px-8 py-4 rounded-2xl font-bold transition shadow-[0_0_28px_rgba(34,211,238,0.28)]">
+            <button onClick={onStart} className="bg-cyan-600 hover:bg-cyan-500 border border-cyan-200/80 px-8 py-4 rounded-2xl font-black transition shadow-[0_0_28px_rgba(34,211,238,0.28)]">
               Iniciar Missão
             </button>
           ) : (
-            <div className="text-green-300 font-semibold bg-green-950/30 border border-green-700 rounded-2xl px-6 py-4" style={FONT.mono}>
+            <div className="text-green-300 font-semibold bg-green-950/25 border border-green-500/70 rounded-2xl px-6 py-4 text-center shadow-[0_0_22px_rgba(74,222,128,0.12)]" style={FONT.mono}>
               [MISSÃO EM ANDAMENTO]
             </div>
           )}
@@ -657,17 +714,19 @@ const PlanetCard = memo(function PlanetCard({ planet, index, canChoose, selected
           ? "border-green-300 shadow-[0_0_42px_rgba(74,222,128,0.22)]"
           : "border-cyan-700/60 hover:shadow-[0_0_38px_rgba(34,211,238,0.22)] hover:border-cyan-400/70"
       }`}
+      style={!canChoose ? { cursor: LOCKED_PLANET_CURSOR } : undefined}
     >
       <button
         type="button"
         onClick={() => onChoose(planet.name)}
-        disabled={!canChoose}
-        className="relative block w-full overflow-hidden text-left disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+        aria-disabled={!canChoose}
+        className="relative block w-full overflow-hidden text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300"
+        style={!canChoose ? { cursor: LOCKED_PLANET_CURSOR } : undefined}
         aria-label={`Selecionar ${planet.name}`}
       >
         <img src={planet.img} alt={planet.name} className="w-full h-72 object-cover group-hover:scale-105 transition duration-500" />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-        {!canChoose && <div className="absolute inset-0 bg-black/30" />}
+        {!canChoose && <div className="absolute inset-0 bg-black/45" />}
         <div className="absolute top-4 left-4">
           <div className="bg-black/70 border border-cyan-500/40 rounded-full px-4 py-1 text-cyan-300 text-xs tracking-[0.25em]" style={FONT.mono}>
             PX-0{index + 1}
@@ -688,6 +747,31 @@ const PlanetCard = memo(function PlanetCard({ planet, index, canChoose, selected
       </button>
 
       <div className="p-6">
+        <div className="grid gap-3 mb-4" style={FONT.narrative}>
+          <div className="rounded-2xl border border-cyan-800/60 bg-black/35 p-4">
+            <p className="mb-1 text-xs uppercase tracking-[0.2em] text-cyan-300" style={FONT.mono}>
+              Cores observadas
+            </p>
+            <p className="text-gray-200">{planet.colors}</p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div className="rounded-2xl border border-cyan-800/60 bg-black/35 p-4">
+              <p className="mb-1 text-xs uppercase tracking-[0.2em] text-cyan-300" style={FONT.mono}>
+                Tipo
+              </p>
+              <p className="text-gray-200">{planet.type}</p>
+            </div>
+
+            <div className="rounded-2xl border border-cyan-800/60 bg-black/35 p-4">
+              <p className="mb-1 text-xs uppercase tracking-[0.2em] text-cyan-300" style={FONT.mono}>
+                pH atmosférico
+              </p>
+              <p className="text-gray-200">{planet.acidBase}</p>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-cyan-950/20 border border-cyan-800/60 rounded-2xl p-4">
           <p className="text-sm uppercase tracking-[0.2em] text-cyan-300 mb-3" style={FONT.mono}>Análise atmosférica</p>
           <ul className="text-gray-300 leading-relaxed space-y-2 list-disc pl-5" style={FONT.narrative}>
