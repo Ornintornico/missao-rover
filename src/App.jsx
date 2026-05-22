@@ -43,20 +43,20 @@ const PLANETS = [
   {
     name: "Mercúrio",
     type: "Rochoso",
-    colors: "Cinza escuro, marrom e tons metálicos.",
-    acidBase: "Sem atmosfera significativa; não há acidez/basicidade atmosférica relevante.",
+    colors: "Vermelho queimado, marrom escuro e tons metálicos, sugeridos pela superfície aquecida e pela exosfera rarefeita.",
+    acidBase: "Sem atmosfera significativa; os gases ao redor são muito raros para indicar acidez/basicidade atmosférica relevante.",
     img: "https://upload.wikimedia.org/wikipedia/commons/4/4a/Mercury_in_true_color.jpg",
     facts: [
       "Possui superfície com marcas de antigas atividades vulcânicas.",
       "Atualmente é considerado vulcanicamente inativo.",
-      "Quase não possui atmosfera.",
+      "Possui apenas uma exosfera extremamente rarefeita, não uma atmosfera densa.",
       "Possui temperaturas extremas.",
     ],
   },
   {
     name: "Vênus",
     type: "Rochoso",
-    colors: "Amarelo-pálido e branco devido às nuvens densas.",
+    colors: "Verde amarelado, amarelo-pálido e branco, destacando a acidez das nuvens densas.",
     acidBase: "Atmosfera muito ácida, com nuvens de ácido sulfúrico.",
     img: "https://upload.wikimedia.org/wikipedia/commons/e/e5/Venus-real_color.jpg",
     facts: [
@@ -70,7 +70,7 @@ const PLANETS = [
     name: "Marte",
     type: "Rochoso",
     colors: "Vermelho, laranja e marrom por óxidos de ferro.",
-    acidBase: "Atmosfera fina de CO2; tendência levemente ácida quando interage com água.",
+    acidBase: "Atmosfera fina de CO2; sem pista principal de acidez/basicidade para a missão.",
     img: "https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg",
     facts: [
       "Conhecido como Planeta Vermelho.",
@@ -82,7 +82,7 @@ const PLANETS = [
   {
     name: "Júpiter",
     type: "Gasoso",
-    colors: "Faixas brancas, beges, marrons e alaranjadas.",
+    colors: "Faixas amareladas, laranjas, brancas e marrons.",
     acidBase: "Nuvens com amônia; regiões superiores tendem a comportamento básico.",
     img: "https://upload.wikimedia.org/wikipedia/commons/e/e2/Jupiter.jpg",
     facts: [
@@ -461,7 +461,18 @@ const CinematicIntroScreen = memo(function CinematicIntroScreen({ onStart }) {
   );
 });
 
-const IntroScreen = memo(function IntroScreen({ bootText, onStart }) {
+const IntroScreen = memo(function IntroScreen({ bootText, timeLeft, onSetMissionTime, onStart }) {
+  const missionTimeOptions = [
+    { label: "15 min", seconds: 900 },
+    { label: "20 min", seconds: 1200 },
+    { label: "30 min", seconds: 1800 },
+    { label: "45 min", seconds: 2700 },
+  ];
+  const selectedMinutes = Math.round(timeLeft / 60);
+  const applyMinuteDelta = (minutes) => {
+    onSetMissionTime(Math.min(120, Math.max(1, selectedMinutes + minutes)) * 60);
+  };
+
   return (
     <div
       className="min-h-screen text-white flex items-center justify-center p-6 relative overflow-hidden bg-cover bg-center"
@@ -528,6 +539,91 @@ const IntroScreen = memo(function IntroScreen({ bootText, onStart }) {
           </div>
         </div>
 
+        <div className="mb-8 overflow-hidden rounded-3xl border border-cyan-500/70 bg-black/65 text-left shadow-[0_0_38px_rgba(34,211,238,0.16)]">
+          <div className="border-b border-cyan-800/70 bg-cyan-950/20 px-5 py-4 text-center">
+            <div>
+              <p className="uppercase tracking-[0.35em] text-cyan-300 text-xs mb-2" style={FONT.mono}>
+                Configuração da missão
+              </p>
+              <h2 className="text-3xl font-black text-cyan-100" style={FONT.panel}>
+                {formatTime(timeLeft)}
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid gap-4 p-5 lg:grid-cols-2">
+          <div className="rounded-2xl border border-cyan-800/70 bg-cyan-950/15 p-4">
+          <p className="mb-4 text-center text-xs uppercase tracking-[0.25em] text-cyan-300" style={FONT.mono}>
+            Protocolos rápidos
+          </p>
+          <div className="grid grid-cols-2 gap-3">
+            {missionTimeOptions.map((option) => {
+              const active = timeLeft === option.seconds;
+
+              return (
+                <button
+                  key={option.seconds}
+                  type="button"
+                  onClick={() => onSetMissionTime(option.seconds)}
+                  className={`min-h-14 rounded-2xl border px-4 py-3 font-black transition ${
+                    active
+                      ? "border-cyan-200 bg-cyan-400 text-black shadow-[0_0_26px_rgba(34,211,238,0.32)]"
+                      : "border-cyan-700/70 bg-cyan-950/25 text-cyan-100 hover:border-cyan-300 hover:bg-cyan-900/40"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+          </div>
+
+          </div>
+
+          <div className="rounded-2xl border border-cyan-800/70 bg-cyan-950/15 p-4">
+            <p className="mb-4 text-center text-xs uppercase tracking-[0.25em] text-cyan-300" style={FONT.mono}>
+              Ajuste manual
+            </p>
+
+            <div className="grid gap-3">
+              <div className="grid grid-cols-3 gap-2">
+                {[-10, -5, -1, 1, 5, 10].map((minutes) => (
+                  <button
+                    key={minutes}
+                    type="button"
+                    onClick={() => applyMinuteDelta(minutes)}
+                    className={`min-h-11 rounded-xl border px-3 py-2 font-bold transition ${
+                      minutes > 0
+                        ? "border-emerald-300/50 bg-emerald-950/70 text-emerald-100 hover:bg-emerald-800/80"
+                        : "border-red-300/50 bg-red-950/70 text-red-100 hover:bg-red-800/80"
+                    }`}
+                  >
+                    {minutes > 0 ? `+${minutes}` : minutes}
+                  </button>
+                ))}
+              </div>
+
+              <label className="mt-1 grid gap-2 text-sm text-gray-300" style={FONT.narrative}>
+                <span className="text-center uppercase tracking-[0.18em] text-cyan-300" style={FONT.mono}>
+                  Minutos
+                </span>
+                <input
+                  type="number"
+                  min="1"
+                  max="120"
+                  value={selectedMinutes}
+                  onChange={(event) => {
+                    const value = Number(event.target.value);
+                    if (Number.isNaN(value)) return;
+                    onSetMissionTime(Math.min(120, Math.max(1, value)) * 60);
+                  }}
+                  className="w-full rounded-2xl border border-cyan-700/70 bg-black/60 px-4 py-3 text-center text-xl font-black text-cyan-100 outline-none focus:border-cyan-300"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+        </div>
+
         <button
           onClick={onStart}
           className="bg-cyan-600 hover:bg-cyan-500 border border-cyan-300/70 px-8 py-4 rounded-2xl font-bold transition shadow-[0_0_28px_rgba(34,211,238,0.28)]"
@@ -539,29 +635,22 @@ const IntroScreen = memo(function IntroScreen({ bootText, onStart }) {
   );
 });
 
-const MissionTimer = memo(function MissionTimer({ timeLeft, missionStarted, onStart, onAddTime, onRemoveTime }) {
-  const timeAdjustments = [
-    { label: "30s", seconds: 30 },
-    { label: "1 min", seconds: 60 },
-    { label: "5 min", seconds: 300 },
-    { label: "10 min", seconds: 600 },
-  ];
-
+const MissionTimer = memo(function MissionTimer({ timeLeft, missionStarted, onStart }) {
   return (
-    <section className="relative z-10 mx-3 sm:mx-6 mb-10 overflow-hidden rounded-[1.5rem] border border-cyan-400/70 bg-black/78 backdrop-blur-xl shadow-[0_0_45px_rgba(34,211,238,0.18)]">
+    <section className="fixed right-3 top-3 z-[70] w-[min(92vw,310px)] overflow-hidden rounded-[1.25rem] border border-cyan-400/70 bg-black/82 backdrop-blur-xl shadow-[0_0_45px_rgba(34,211,238,0.22)]">
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(90deg,rgba(34,211,238,0.12),transparent_24%,rgba(34,211,238,0.08)_50%,transparent_76%,rgba(34,211,238,0.12))]" />
       <div className="absolute inset-x-0 top-0 h-px bg-cyan-200/80 shadow-[0_0_18px_rgba(103,232,249,0.75)]" />
       <div className="absolute inset-x-6 bottom-0 h-px bg-cyan-700/70" />
 
-      <div className="relative z-10 grid xl:grid-cols-[minmax(260px,0.75fr)_1.35fr_auto] gap-5 items-stretch p-4 sm:p-5 md:p-6" style={FONT.panel}>
-        <div className="rounded-2xl border border-cyan-800/70 bg-cyan-950/15 p-4">
+      <div className="relative z-10 p-3 sm:p-4" style={FONT.panel}>
+        <div className="rounded-2xl border border-cyan-800/70 bg-cyan-950/15 p-3">
           <p className="text-[10px] sm:text-xs uppercase tracking-[0.32em] text-cyan-300 mb-1" style={FONT.mono}>
             Tempo operacional
           </p>
-          <p className="text-4xl sm:text-5xl md:text-6xl font-black text-white leading-none tracking-normal drop-shadow-[0_0_18px_rgba(34,211,238,0.28)]" style={FONT.mono}>
+          <p className="text-4xl sm:text-5xl font-black text-white leading-none tracking-normal drop-shadow-[0_0_18px_rgba(34,211,238,0.28)]" style={FONT.mono}>
             {formatTime(timeLeft)}
           </p>
-          <div className="mt-4 flex items-center gap-3 text-xs uppercase tracking-[0.25em]" style={FONT.mono}>
+          <div className="mt-3 flex items-center gap-3 text-[10px] uppercase tracking-[0.22em]" style={FONT.mono}>
             <span className={`h-2.5 w-2.5 rounded-full ${missionStarted ? "bg-green-300 animate-pulse" : "bg-cyan-300"}`} />
             <span className={missionStarted ? "text-green-300" : "text-cyan-200"}>
               {missionStarted ? "Missão ativa" : "Aguardando início"}
@@ -569,49 +658,13 @@ const MissionTimer = memo(function MissionTimer({ timeLeft, missionStarted, onSt
           </div>
         </div>
 
-        <div className="grid gap-3 rounded-2xl border border-cyan-800/70 bg-black/35 p-4">
-          <div className="grid md:grid-cols-[auto_1fr] gap-3 items-center">
-              <span className="text-xs uppercase tracking-[0.22em] text-emerald-300" style={FONT.mono}>
-                Adicionar
-              </span>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {timeAdjustments.map((option) => (
-                <button
-                  key={`add-${option.seconds}`}
-                  onClick={() => onAddTime(option.seconds)}
-                  className="bg-emerald-950/80 hover:bg-emerald-700/90 border border-emerald-300/50 px-3 py-2.5 rounded-xl transition font-bold text-emerald-100 shadow-[0_0_18px_rgba(16,185,129,0.08)]"
-                >
-                  +{option.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-[auto_1fr] gap-3 items-center">
-              <span className="text-xs uppercase tracking-[0.22em] text-red-300" style={FONT.mono}>
-                Remover
-              </span>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {timeAdjustments.map((option) => (
-                <button
-                  key={`remove-${option.seconds}`}
-                  onClick={() => onRemoveTime(option.seconds)}
-                  className="bg-red-950/80 hover:bg-red-700/90 border border-red-300/50 px-3 py-2.5 rounded-xl transition font-bold text-red-100 shadow-[0_0_18px_rgba(239,68,68,0.08)]"
-                >
-                  -{option.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col items-stretch justify-center gap-3">
+        <div className="mt-3 flex flex-col items-stretch justify-center gap-3">
           {!missionStarted ? (
-            <button onClick={onStart} className="bg-cyan-600 hover:bg-cyan-500 border border-cyan-200/80 px-8 py-4 rounded-2xl font-black transition shadow-[0_0_28px_rgba(34,211,238,0.28)]">
+            <button onClick={onStart} className="bg-cyan-600 hover:bg-cyan-500 border border-cyan-200/80 px-5 py-3 rounded-2xl font-black transition shadow-[0_0_28px_rgba(34,211,238,0.28)]">
               Iniciar Missão
             </button>
           ) : (
-            <div className="text-green-300 font-semibold bg-green-950/25 border border-green-500/70 rounded-2xl px-6 py-4 text-center shadow-[0_0_22px_rgba(74,222,128,0.12)]" style={FONT.mono}>
+            <div className="text-green-300 font-semibold bg-green-950/25 border border-green-500/70 rounded-2xl px-4 py-3 text-center text-xs shadow-[0_0_22px_rgba(74,222,128,0.12)]" style={FONT.mono}>
               [MISSÃO EM ANDAMENTO]
             </div>
           )}
@@ -1012,14 +1065,9 @@ function RoverWorkshopMissionContent() {
   setIntroOpen(false);
 };
 
-  const removeTime = (seconds) => {
+  const setMissionDuration = (seconds) => {
     playTone("click");
-    setTimeLeft((prev) => Math.max(0, prev - seconds));
-  };
-
-  const addTime = (seconds) => {
-    playTone("click");
-    setTimeLeft((prev) => prev + seconds);
+    setTimeLeft(seconds);
   };
 
   const saveExperimentProgress = (index) => {
@@ -1095,7 +1143,14 @@ function RoverWorkshopMissionContent() {
 }
 
 if (introOpen) {
-  return withAudio(<IntroScreen bootText={bootText} onStart={startMission} />);
+  return withAudio(
+    <IntroScreen
+      bootText={bootText}
+      timeLeft={timeLeft}
+      onSetMissionTime={setMissionDuration}
+      onStart={startMission}
+    />
+  );
 }
 
   if (missionFailed) {
@@ -1108,7 +1163,7 @@ if (introOpen) {
 
   return withAudio(
   <div
-    className="min-h-screen text-white relative overflow-hidden bg-cover bg-center bg-scroll md:bg-fixed"
+    className="min-h-screen text-white relative overflow-x-hidden bg-cover bg-center bg-scroll md:bg-fixed"
     style={createBackgroundStyle(0.78)}
   >
       <DustLayer />
@@ -1130,8 +1185,6 @@ if (introOpen) {
         timeLeft={timeLeft}
         missionStarted={missionStarted}
         onStart={startMission}
-        onAddTime={addTime}
-        onRemoveTime={removeTime}
       />
       <Timeline revealed={revealed} />
       <ExperimentSection
