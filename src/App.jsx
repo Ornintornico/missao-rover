@@ -1,7 +1,8 @@
 import ambientMusic from "./assets/AmbienteOficina.mp3";
 import introMusic from "./assets/TemaInicio.mp3";
 import padImg from "./assets/P.A.D.png";
-import React, { memo, useEffect, useMemo, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
+import { useMissionAudio } from "./audio/useMissionAudio";
 
 import falhaTempoImg from "./assets/falha-tempo.png";
 import falhaPlanetaImg from "./assets/falha-planeta.png";
@@ -762,31 +763,14 @@ function RoverWorkshopMissionContent() {
   const [missionFinished, setMissionFinished] = useState(false);
   const [missionFailed, setMissionFailed] = useState(null);
   const [bootText, setBootText] = useState("");
-  const audioRef = useRef(null);
-  const ambientRef = useRef(null);
+  const { ambientRef, playAmbient, playTone } = useMissionAudio();
 
-  const playTone = (type = "click") => {
-    try {
-      if (!audioRef.current) {
-        audioRef.current = new (window.AudioContext || window.webkitAudioContext)();
-      }
-
-      const audioCtx = audioRef.current;
-      const oscillator = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-
-      oscillator.connect(gain);
-      gain.connect(audioCtx.destination);
-      oscillator.type = "sine";
-      oscillator.frequency.value = type === "error" ? 160 : type === "success" ? 720 : 460;
-      gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
-      oscillator.start();
-      oscillator.stop(audioCtx.currentTime + 0.18);
-    } catch {
-      return;
-    }
-  };
+  const withAudio = (screen) => (
+    <>
+      <audio ref={ambientRef} src={ambientMusic} preload="auto" />
+      {screen}
+    </>
+  );
 
   useEffect(() => {
     document.title = "Missão Rover — Investigação Planetária";
@@ -811,30 +795,27 @@ function RoverWorkshopMissionContent() {
   }, []);
 
   useEffect(() => {
-    if (missionStarted && !missionFinished && !missionFailed && timeLeft <= 0) {
-      playTone("error");
-      setMissionStarted(false);
-      setMissionFailed("timeExpired");
-      return;
-    }
-
-    if (!missionStarted || missionFinished || missionFailed || timeLeft <= 0) return;
+    if (!missionStarted || missionFinished || missionFailed) return;
 
     const timer = window.setInterval(() => {
-      setTimeLeft((prev) => Math.max(0, prev - 1));
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          playTone("error");
+          setMissionStarted(false);
+          setMissionFailed("timeExpired");
+          return 0;
+        }
+
+        return prev - 1;
+      });
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [missionStarted, missionFinished, missionFailed, timeLeft]);
+  }, [missionStarted, missionFinished, missionFailed, playTone]);
 
   const startMission = () => {
   playTone("success");
-
-  if (ambientRef.current) {
-    ambientRef.current.volume = 0.22;
-    ambientRef.current.loop = true;
-    ambientRef.current.play().catch(() => {});
-  }
+  playAmbient();
 
   setMissionStarted(true);
   setIntroOpen(false);
@@ -843,6 +824,11 @@ function RoverWorkshopMissionContent() {
   const removeTime = (seconds) => {
     playTone("click");
     setTimeLeft((prev) => Math.max(0, prev - seconds));
+  };
+
+  const addTime = (seconds) => {
+    playTone("click");
+    setTimeLeft((prev) => prev + seconds);
   };
 
   const saveExperimentProgress = (index) => {
@@ -885,36 +871,33 @@ function RoverWorkshopMissionContent() {
   };
 
   if (cinematicOpen) {
-  return (
+  return withAudio(
     <CinematicIntroScreen
-      onStart={() => setCinematicOpen(false)}
+      onStart={() => {
+        playAmbient();
+        setCinematicOpen(false);
+      }}
     />
   );
 }
 
 if (introOpen) {
-  return <IntroScreen bootText={bootText} onStart={startMission} />;
+  return withAudio(<IntroScreen bootText={bootText} onStart={startMission} />);
 }
 
   if (missionFailed) {
-    return <FailureScreen missionFailed={missionFailed} onReset={resetMission} />;
+    return withAudio(<FailureScreen missionFailed={missionFailed} onReset={resetMission} />);
   }
 
   if (missionFinished) {
-    return <VictoryScreen notes={notes} onReset={resetMission} />;
+    return withAudio(<VictoryScreen notes={notes} onReset={resetMission} />);
   }
 
-  return (
+  return withAudio(
   <div
     className="min-h-screen text-white relative overflow-hidden bg-cover bg-center bg-scroll md:bg-fixed"
     style={createBackgroundStyle(0.78)}
   >
-    <audio
-      ref={ambientRef}
-      src={ambientMusic}
-      preload="auto"
-    />
-
       <DustLayer />
       <div className="absolute inset-0 opacity-20 bg-[radial-gradient(white_1px,transparent_1px)] bg-[size:24px_24px]" />
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:100%_7px] opacity-20" />
