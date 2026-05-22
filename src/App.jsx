@@ -1,3 +1,6 @@
+import ambientMusic from "./assets/AmbienteOficina.mp3";
+import introMusic from "./assets/TemaInicio.mp3";
+import padImg from "./assets/P.A.D.png";
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
 
 import falhaTempoImg from "./assets/falha-tempo.png";
@@ -31,7 +34,7 @@ const EXPERIMENTS = [
     description:
       "P.A.D enviou análises geológicas.",
     science:
-      "As amostras de P.A.D emitem uma luz estranhamente chamativa. Talvez nosso amigo esteja tentando nos mostrar a composição Química do Planeta.",
+      "As amostras de P.A.D emitem uma luz estranhamente chamativa, talvez nosso amigo esteja tentando nos mostrar a composição Química do Planeta.",
   },
 ];
 
@@ -166,64 +169,131 @@ const DustLayer = memo(function DustLayer() {
   );
 });
 
-const IntroScreen = memo(function IntroScreen({ bootText, onStart }) {
+const CinematicIntroScreen = memo(function CinematicIntroScreen({ onStart }) {
   const [showButton, setShowButton] = useState(false);
+  const [musicStarted, setMusicStarted] = useState(false);
+  const musicRef = useRef(null);
+
+  const startMusic = () => {
+    if (musicStarted) return;
+
+    if (musicRef.current) {
+      musicRef.current.volume = 0.45;
+      musicRef.current.play().catch((error) => {
+        console.log("Erro ao tocar música:", error);
+      });
+      setMusicStarted(true);
+    }
+  };
+
+  const handleStart = () => {
+    onStart();
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setShowButton(true);
-    }, 34000);
+    }, 60000);
 
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <div
-      className="min-h-screen overflow-hidden relative bg-black text-yellow-200 flex items-center justify-center"
+    onClick={startMusic}
+      className="min-h-screen overflow-hidden relative bg-black text-yellow-200 flex items-center justify-center cursor-pointer"
       style={createBackgroundStyle(0.92)}
     >
       <DustLayer />
 
-      <div className="absolute inset-0 bg-black/70 z-0" />
+<div className="absolute inset-0 bg-black/75 z-0" />
+
+<div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+  <img
+  src={padImg}
+  alt="P.A.D"
+  className="
+    absolute
+    inset-0
+    w-full
+    h-full
+    object-contain
+    opacity-[0.55]
+    scale-[1]
+    animate-[padPulse_4s_ease-in-out_infinite]
+  "
+  style={{
+    filter:
+      "sepia(0.15) brightness(0.9) contrast(1.05)",
+  }}
+/>
+
+  <div
+    className="
+      absolute
+      inset-0
+      bg-gradient-to-r
+      from-black/75
+      via-black/45
+      to-black/80
+    "
+  />
+</div>
 
       <style>
         {`
+        @keyframes padPulse {
+  0% {
+    opacity: 0.8;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.8;
+  }
+}
           @keyframes crawl {
-            0% {
-              transform: rotateX(25deg) translateY(100vh) translateZ(0);
-              opacity: 1;
-            }
+  0% {
+    transform: translateX(-50%) rotateX(28deg) translateY(55vh);
+    opacity: 1;
+  }
 
-            100% {
-              transform: rotateX(25deg) translateY(-320vh) translateZ(-300px);
-              opacity: 0;
-            }
-          }
+  100% {
+    transform: translateX(-50%) rotateX(28deg) translateY(-260vh);
+    opacity: 0;
+  }
+}
 
-          .starwars-container {
-            perspective: 450px;
-            perspective-origin: center bottom;
-            position: absolute;
-            inset: 0;
-            overflow: hidden;
-          }
+.starwars-container {
+  perspective: 520px;
+  perspective-origin: center bottom;
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
 
-          .starwars-crawl {
-            position: absolute;
-            width: 90%;
-            max-width: 900px;
-            left: 50%;
-            transform: translateX(-50%) rotateX(25deg);
-            transform-origin: 50% 100%;
-            animation: crawl 40s linear forwards;
-            font-family: "Orbitron", sans-serif;
-            color: #fde68a;
-            text-align: justify;
-            line-height: 1.9;
-            font-size: clamp(1rem, 2vw, 2rem);
-            font-weight: 700;
-            letter-spacing: 0.04em;
-          }
+.starwars-crawl {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 88%;
+  max-width: 4000px;
+  transform-origin: 50% 100%;
+  animation: crawl 60s linear forwards;
+  color: #facc15;
+  font-family: "Orbitron", sans-serif;
+  font-weight: 800;
+  text-align: justify;
+  line-height: 2.3;
+  font-size: clamp(1.5rem, 3vw, 3.2rem);
+  letter-spacing: 0.04em;
+  text-shadow:
+    0 0 8px rgba(250, 204, 21, 0.45),
+    0 0 22px rgba(250, 204, 21, 0.25);
+}
 
           .crawl-title {
             text-align: center;
@@ -231,7 +301,7 @@ const IntroScreen = memo(function IntroScreen({ bootText, onStart }) {
           }
 
           .crawl-title h1 {
-            font-size: clamp(2.5rem, 6vw, 6rem);
+            font-size: clamp(4rem, 9vw, 8rem);
             font-weight: 900;
             color: #facc15;
             text-shadow: 0 0 20px rgba(250,204,21,0.45);
@@ -245,7 +315,7 @@ const IntroScreen = memo(function IntroScreen({ bootText, onStart }) {
 
           @keyframes fadeButton {
             from {
-              opacity: 0;
+              opacity: 1;
               transform: translateY(20px);
             }
 
@@ -260,7 +330,7 @@ const IntroScreen = memo(function IntroScreen({ bootText, onStart }) {
           }
         `}
       </style>
-
+<audio ref={musicRef} src={introMusic} />
       <div className="starwars-container z-10">
         <div className="starwars-crawl">
           <div className="crawl-title">
@@ -311,13 +381,91 @@ const IntroScreen = memo(function IntroScreen({ bootText, onStart }) {
       {showButton && (
         <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-30 intro-button">
           <button
-            onClick={onStart}
+            onClick={handleStart}
             className="bg-yellow-400 hover:bg-yellow-300 text-black px-10 py-5 rounded-2xl text-xl font-black shadow-[0_0_40px_rgba(250,204,21,0.45)] transition border border-yellow-100"
           >
             INICIAR TRANSMISSÃO
           </button>
         </div>
       )}
+    </div>
+  );
+});
+
+const IntroScreen = memo(function IntroScreen({ bootText, onStart }) {
+  return (
+    <div
+      className="min-h-screen text-white flex items-center justify-center p-6 relative overflow-hidden bg-cover bg-center"
+      style={createBackgroundStyle(0.76)}
+    >
+      <DustLayer />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:100%_7px] opacity-20" />
+
+      <div className="relative z-10 w-full max-w-5xl bg-black/75 border border-cyan-500/70 rounded-[2rem] p-5 sm:p-8 md:p-12 text-center shadow-[0_0_55px_rgba(34,211,238,0.22)] backdrop-blur-md">
+        <h1 className="text-4xl sm:text-5xl md:text-8xl font-extrabold text-cyan-200 leading-tight mb-10 drop-shadow-[0_0_20px_rgba(34,211,238,0.35)] px-2">
+          Missão P.A.D.
+          <span className="block text-2xl md:text-4xl mt-4 text-cyan-100/90">
+            Localização Planetária Desconhecida
+          </span>
+        </h1>
+
+        <div className="mb-8 text-left bg-black/55 border border-cyan-800/70 rounded-3xl p-5 md:p-7 shadow-[0_0_35px_rgba(34,211,238,0.12)]">
+          <p className="uppercase tracking-[0.45em] text-cyan-300 text-xs mb-4" style={FONT.mono}>
+            TRANSMISSÃO RECEBIDA
+          </p>
+
+          <p className="uppercase tracking-[0.35em] text-cyan-200 text-sm min-h-[24px] mb-6" style={FONT.mono}>
+            {bootText}
+          </p>
+
+          <div className="space-y-4 text-gray-300 leading-relaxed" style={FONT.narrative}>
+            <div>
+              <p className="text-orange-300 font-bold mb-1" style={FONT.panel}>
+                AGÊNCIA ORBITAL SUL-AMERICANA
+              </p>
+              <p>Divisão de Exploração Exoplanetária • Programa SPORT</p>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-4 text-sm" style={FONT.mono}>
+              <div className="bg-cyan-950/20 border border-cyan-900/60 rounded-2xl p-4">
+                <p>PROTOCOLO: P.A.D-01</p>
+                <p>UNIDADE: Pathfinder Autonomous Droid</p>
+                <p>SETOR: COMANDO DE CIÊNCIA ORBITAL</p>
+                <p>ANO: 2084</p>
+              </div>
+
+              <div className="bg-red-950/20 border border-red-900/60 rounded-2xl p-4 text-red-200">
+                <p>STATUS: SINAL INSTÁVEL</p>
+                <p>PACOTES RECUPERADOS: 12%</p>
+                <p>INTEGRIDADE: CRÍTICA</p>
+                <p>JANELA ORBITAL LIMITADA</p>
+              </div>
+            </div>
+
+            <div className="bg-black/45 border border-cyan-900/60 rounded-2xl p-5">
+              <p className="text-cyan-300 uppercase tracking-[0.25em] text-xs mb-3" style={FONT.mono}>
+                RELATÓRIO AUTOMÁTICO
+              </p>
+              <p>
+                Durante a missão SPORT, a unidade de exploração P.A.D-01 perdeu comunicação após uma falha de navegação gravitacional.
+              </p>
+              <p className="mt-3">
+                Os sistemas automáticos identificaram um pouso não programado em um planeta desconhecido do Sistema Solar.
+              </p>
+              <p className="mt-3">
+                Sem identificação correta do planeta, a missão de resgate poderá falhar.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <button
+          onClick={onStart}
+          className="bg-cyan-600 hover:bg-cyan-500 border border-cyan-300/70 px-8 py-4 rounded-2xl font-bold transition shadow-[0_0_28px_rgba(34,211,238,0.28)]"
+        >
+          Iniciar transmissão
+        </button>
+      </div>
     </div>
   );
 });
@@ -364,7 +512,7 @@ const Timeline = memo(function Timeline({ revealed }) {
     [true, "FASE 1", "Recebimento dos sinais do rover."],
     [revealed[0], "FASE 2", "Análise estrutural concluída."],
     [revealed[1], "FASE 3", "Análise química atmosférica concluída."],
-    [revealed[2], "FASE 4", "Assinatura espectral compatível com Mercúrio."],
+    [revealed[2], "FASE 4", "P.A.D parou de enviar material. Temos que descobrir o Planeta antes que seja tarde demais."],
   ];
 
   return (
@@ -604,6 +752,7 @@ const VictoryScreen = memo(function VictoryScreen({ notes, onReset }) {
 
 function RoverWorkshopMissionContent() {
   const [introOpen, setIntroOpen] = useState(true);
+  const [cinematicOpen, setCinematicOpen] = useState(true);
   const [missionStarted, setMissionStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(1800);
   const [revealed, setRevealed] = useState({});
@@ -614,6 +763,7 @@ function RoverWorkshopMissionContent() {
   const [missionFailed, setMissionFailed] = useState(null);
   const [bootText, setBootText] = useState("");
   const audioRef = useRef(null);
+  const ambientRef = useRef(null);
 
   const playTone = (type = "click") => {
     try {
@@ -639,7 +789,7 @@ function RoverWorkshopMissionContent() {
   };
 
   useEffect(() => {
-    document.title = "Missão P.A.D — Investigação Planetária";
+    document.title = "Missão Rover — Investigação Planetária";
 
     [backgroundImg, falhaTempoImg, falhaPlanetaImg, vitoriaImg, ...PLANETS.map((planet) => planet.img)].forEach((src) => {
       const image = new Image();
@@ -678,15 +828,17 @@ function RoverWorkshopMissionContent() {
   }, [missionStarted, missionFinished, missionFailed, timeLeft]);
 
   const startMission = () => {
-    playTone("success");
-    setMissionStarted(true);
-    setIntroOpen(false);
-  };
+  playTone("success");
 
-  const addTime = (seconds) => {
-    playTone("click");
-    setTimeLeft((prev) => prev + seconds);
-  };
+  if (ambientRef.current) {
+    ambientRef.current.volume = 0.22;
+    ambientRef.current.loop = true;
+    ambientRef.current.play().catch(() => {});
+  }
+
+  setMissionStarted(true);
+  setIntroOpen(false);
+};
 
   const removeTime = (seconds) => {
     playTone("click");
@@ -732,9 +884,17 @@ function RoverWorkshopMissionContent() {
     setResult("");
   };
 
-  if (introOpen) {
-    return <IntroScreen bootText={bootText} onStart={startMission} />;
-  }
+  if (cinematicOpen) {
+  return (
+    <CinematicIntroScreen
+      onStart={() => setCinematicOpen(false)}
+    />
+  );
+}
+
+if (introOpen) {
+  return <IntroScreen bootText={bootText} onStart={startMission} />;
+}
 
   if (missionFailed) {
     return <FailureScreen missionFailed={missionFailed} onReset={resetMission} />;
@@ -745,7 +905,16 @@ function RoverWorkshopMissionContent() {
   }
 
   return (
-    <div className="min-h-screen text-white relative overflow-hidden bg-cover bg-center bg-scroll md:bg-fixed" style={createBackgroundStyle(0.78)}>
+  <div
+    className="min-h-screen text-white relative overflow-hidden bg-cover bg-center bg-scroll md:bg-fixed"
+    style={createBackgroundStyle(0.78)}
+  >
+    <audio
+      ref={ambientRef}
+      src={ambientMusic}
+      preload="auto"
+    />
+
       <DustLayer />
       <div className="absolute inset-0 opacity-20 bg-[radial-gradient(white_1px,transparent_1px)] bg-[size:24px_24px]" />
       <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:100%_7px] opacity-20" />
