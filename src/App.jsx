@@ -1,4 +1,4 @@
-import ambientMusic from "./assets/AmbienteOficina.mp3";
+﻿import ambientMusic from "./assets/AmbienteOficina.mp3";
 import introMusic from "./assets/TemaInicio.mp3";
 import padImg from "./assets/P.A.D.png";
 import React, { memo, useEffect, useRef, useState } from "react";
@@ -15,9 +15,9 @@ const EXPERIMENTS = [
     code: "EXP-01",
     title: "Análise de Estrutura",
     description:
-      "P.A.D enviou amostras de rochas.",
+      "P.A.D enviou amostras de rochas de uma rocha lisa.",
     science:
-      "Os sensores detectaram um matérial sólido, talvez seja da superfície do Planeta. O material deve ser analisado cuidadosamente com o auxílio do super foco tecnológico.",
+      "Os sensores detectaram um matérial sólido de origem vulcânica, talvez seja da superfície do Planeta. O material deve ser analisado cuidadosamente com o auxílio do super foco tecnológico.",
   },
   {
     phase: "FASE 2",
@@ -77,6 +77,7 @@ const PLANETS = [
       "Possui duas luas: Fobos e Deimos.",
       "Possui sinais de água no passado.",
       "Temperatura muito baixa.",
+      "Já foi um planeta vulcânico."
     ],
   },
   {
@@ -1211,6 +1212,10 @@ function RoverWorkshopMissionContent() {
   }, [missionStarted, missionFinished, missionFailed, playTone]);
 
   const startMission = () => {
+    window.scrollTo({
+    top: 0,
+    behavior: "instant",
+  });
   playTone("success");
   playAmbient();
 
