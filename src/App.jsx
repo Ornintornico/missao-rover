@@ -44,7 +44,7 @@ const PLANETS = [
     name: "Mercúrio",
     type: "Rochoso",
     colors: "Vermelho queimado, marrom escuro e tons metálicos, sugeridos pela superfície aquecida e pela exosfera rarefeita.",
-    acidBase: "Sem atmosfera significativa; os gases ao redor são muito raros para indicar acidez/basicidade atmosférica relevante.",
+    acidBase: "Sem atmosfera significativa; Superfície rica em silicatos e metais, com minerais que podem apresentar comportamento associado a soluções de caráter alcalino em análises laboratoriais.",
     img: "https://upload.wikimedia.org/wikipedia/commons/4/4a/Mercury_in_true_color.jpg",
     facts: [
       "Possui superfície com marcas de antigas atividades vulcânicas.",
@@ -70,7 +70,7 @@ const PLANETS = [
     name: "Marte",
     type: "Rochoso",
     colors: "Vermelho, laranja e marrom por óxidos de ferro.",
-    acidBase: "Atmosfera fina de CO2; sem pista principal de acidez/basicidade para a missão.",
+    acidBase: "Atmosfera fina de CO2; O solo marciano contém minerais ricos em metais e silicatos, alguns capazes de apresentar reações químicas associadas a meios levemente básicos.",
     img: "https://upload.wikimedia.org/wikipedia/commons/0/02/OSIRIS_Mars_true_color.jpg",
     facts: [
       "Conhecido como Planeta Vermelho.",
@@ -96,7 +96,7 @@ const PLANETS = [
     name: "Netuno",
     type: "Gasoso",
     colors: "Azul intenso devido ao metano na atmosfera.",
-    acidBase: "Atmosfera rica em hidrogênio, hélio e metano; sem indicação simples de acidez ou basicidade.",
+    acidBase: "Atmosfera rica em hidrogênio, hélio e metano; Compostos químicos presentes em sua atmosfera podem apresentar propriedades relacionadas a ambientes de caráter pouco ácido em determinadas reações laboratoriais.",
     img: "https://upload.wikimedia.org/wikipedia/commons/5/56/Neptune_Full.jpg",
     facts: [
       "8º planeta do Sistema Solar.",
