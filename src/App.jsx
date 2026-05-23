@@ -24,9 +24,9 @@ const EXPERIMENTS = [
     code: "EXP-02",
     title: "Camaleão da Escala",
     description:
-      "P.A.D enviou uma amostra que reage com nosso indicador.",
+      "P.A.D enviou novas informações. Vamos comparar a reação das amostras dos Planetas com nosso indicador.",
     science:
-      "A substância reage estranhamente com nosso indicador, talvez P.A.D esteja tentando dar instruções sobre as condições de Ph do Planeta.",
+      "P.A.D enviou novas informações indicando que o planeta onde realizou o pouso forçado possui uma superfície rica em silicatos e metais. Segundo os bancos de dados da Central Orbital, alguns compostos minerais ricos em silicatos e metais podem estar associados a soluções de caráter alcalino quando analisados em laboratório.",
   },
   {
     phase: "FASE 3",
@@ -35,7 +35,7 @@ const EXPERIMENTS = [
     description:
       "P.A.D enviou análises geológicas.",
     science:
-      "As amostras de P.A.D emitem uma luz estranhamente chamativa, talvez nosso amigo esteja tentando nos mostrar a composição Química do Planeta.",
+      "As amostras de P.A.D emitem luz vísivel entre 625 e 740 nm, talvez nosso amigo esteja tentando nos mostrar a composição Química do Planeta.",
   },
 ];
 
